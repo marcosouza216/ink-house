@@ -1,0 +1,31 @@
+@font-face{font-family:"Alibaba PuHuiTi";src:url("../assets/fonts/AlibabaPuHuiTi-2-35-Thin.otf") format("opentype");font-weight:100;font-display:swap}
+@font-face{font-family:"Alibaba PuHuiTi";src:url("../assets/fonts/AlibabaPuHuiTi-2-45-Light.otf") format("opentype");font-weight:300;font-display:swap}
+@font-face{font-family:"Alibaba PuHuiTi";src:url("../assets/fonts/AlibabaPuHuiTi-2-55-Regular.otf") format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:"Alibaba PuHuiTi";src:url("../assets/fonts/AlibabaPuHuiTi-2-65-Medium.otf") format("opentype");font-weight:500 600;font-display:swap}
+@font-face{font-family:"Alibaba PuHuiTi";src:url("../assets/fonts/AlibabaPuHuiTi-2-95-ExtraBold.otf") format("opentype");font-weight:700 800;font-display:swap}
+@font-face{font-family:"Alibaba PuHuiTi";src:url("../assets/fonts/AlibabaPuHuiTi-2-115-Black.otf") format("opentype");font-weight:900;font-display:swap}
+
+:root{--ink:#542a22;--deep:#783629;--cream:#f3e5c1;--paper:#fffaf0;--coral:#b65038;--yellow:#d9b66f;--pink:#ddb18f;--blue:#c9b98d;--green:#c8b98d;--line:#542a2230;--font-brand:"Alibaba PuHuiTi","PingFang TC","Microsoft JhengHei",sans-serif}
+html,body,button,input,select,textarea{font-family:var(--font-brand)!important}
+body{background:var(--cream);color:var(--ink)}
+.hero h1,.section h2,.page-hero h1,.detail-info h1,.course-body h3,.class-info h3,.calendar-panel h3,.calendar-toolbar h2,.selected-course h3,.contact-grid h2,.about-copy h2{font-family:var(--font-brand)!important;font-weight:800}
+.kicker,.course-meta,.audience-badge{font-family:var(--font-brand)!important;font-weight:700}
+
+.brand{display:flex!important;align-items:center;transform:none!important;line-height:1!important}
+.brand-logo{display:block;width:176px;height:auto;max-height:62px;object-fit:contain}
+.site-header .brand-logo{width:174px}
+footer .brand-logo{width:155px;filter:brightness(0) invert(1)}
+.dashboard aside .brand-logo{width:150px;filter:brightness(0) invert(1)}
+.login-card .brand-logo{width:190px}
+
+.site-header,.page-header{background:linear-gradient(110deg,var(--cream) 0%,var(--paper) 52%,var(--pink) 100%)!important}
+.page-hero,.about-hero,.home-slideshow .hero-copy{background:linear-gradient(135deg,var(--cream) 0%,var(--paper) 48%,var(--pink) 100%)!important}
+.page-content,.about.section,.about-page,.registration-layout,.full-schedule{background:linear-gradient(155deg,var(--cream) 0%,var(--paper) 55%,var(--pink) 100%)!important}
+.ticker,footer,.dashboard aside,.dark,.audience-switch button.active,.category-filter button.active,.filter-row button.active{background:var(--deep)!important;color:var(--cream)!important}
+.coral,.add-button,.login-card button,.modal-actions button:last-child,.calendar-event{background:var(--coral)!important;color:var(--paper)!important}
+.hero-stamp,.selected-course,.contact-section,.kids .calendar-event,.calendar-panel>header{background:var(--yellow)!important;color:var(--ink)!important}
+.course-card,.catalog-card,.registration-form,.signup form,.contact-grid article,.calendar-panel,.login-card,.panel,.stat,.nav-cta,.audience-switch button,.category-filter button,.month-switch button{background:var(--paper)!important}
+.course-art:not(.has-image),.blank-art,.blank-photo{background:var(--green)!important;background-image:none!important;color:var(--ink)!important}
+.page-header{border-bottom-color:var(--ink)}
+
+@media(max-width:800px){.site-header .brand-logo{width:142px;max-height:48px}footer .brand-logo{width:140px}.dashboard aside .brand-logo{width:135px}.site-header nav.open{background:linear-gradient(145deg,var(--cream),var(--paper),var(--pink))!important}}

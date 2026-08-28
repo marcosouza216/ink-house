@@ -1,0 +1,116 @@
+#catalogGrid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:30px}#catalogGrid .catalog-card{display:grid;grid-template-columns:230px 1fr;min-height:210px;box-shadow:5px 5px 0 var(--ink)}#catalogGrid .course-art{height:100%;min-height:210px;border-bottom:0;border-right:2px solid var(--ink)}#catalogGrid .course-body{display:grid;grid-template-columns:1fr auto;align-content:center;column-gap:25px;padding:26px 30px}#catalogGrid .course-body>.audience-badge,#catalogGrid .course-body>.course-meta,#catalogGrid .course-body>h3,#catalogGrid .course-body>p{grid-column:1}#catalogGrid .course-body h3{font-size:30px;margin:5px 0}#catalogGrid .course-body p{min-height:0;max-width:720px;margin:5px 0 15px}#catalogGrid .course-footer{grid-column:2;grid-row:1/6;min-width:160px;border-top:0;border-left:1px dashed var(--ink);padding:15px 0 15px 25px;display:flex;flex-direction:column;justify-content:center;gap:14px}.calendar-toolbar{display:flex;justify-content:space-between;align-items:end;margin-bottom:30px}.calendar-toolbar h2{font-family:Yomogi;font-size:42px;margin:0}.dual-calendar{display:grid;grid-template-columns:1fr 1fr;gap:26px}.calendar-panel{border:2px solid var(--ink);background:#fff8e4;box-shadow:6px 6px 0 var(--ink);overflow:hidden}.calendar-panel>header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:2px solid var(--ink)}.calendar-panel.adult>header{background:#d7b18d}.calendar-panel.kids>header{background:#d9b66f}.calendar-panel h3{font-family:Yomogi;font-size:27px;margin:0}.calendar-panel header span{font-size:10px;font-weight:700;letter-spacing:.12em}.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr)}.calendar-weekdays span{text-align:center;padding:9px 2px;border-bottom:1px solid var(--line);font-size:10px;font-weight:700}.calendar-day{min-height:105px;padding:7px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fffdf5}.calendar-day:nth-child(7n){border-right:0}.calendar-day.outside{background:#eee6d3;color:#a89982}.day-number{display:block;font-size:11px;font-weight:700;margin-bottom:5px}.calendar-event{display:block;border-radius:3px;padding:5px 6px;margin-top:4px;background:#b65038;color:white;font-size:9px;line-height:1.35;cursor:pointer}.kids .calendar-event{background:#8a6532}.calendar-event b{display:block}.calendar-event small{font-size:8px;opacity:.85}
+@media(max-width:900px){#catalogGrid .catalog-card{grid-template-columns:150px 1fr}#catalogGrid .course-body{grid-template-columns:1fr;padding:20px}#catalogGrid .course-footer{grid-column:1;grid-row:auto;border-left:0;border-top:1px dashed;padding:12px 0 0;min-width:0;flex-direction:row;justify-content:space-between}.dual-calendar{grid-template-columns:1fr}.calendar-toolbar{display:block}.calendar-toolbar .month-switch{margin-top:20px}}@media(max-width:560px){#catalogGrid .catalog-card{grid-template-columns:1fr}#catalogGrid .course-art{height:190px;min-height:190px;border-right:0;border-bottom:2px solid}.calendar-panel{overflow-x:auto}.calendar-panel>header,.calendar-weekdays,.calendar-grid{min-width:650px}.calendar-day{min-height:95px}}
+@media(max-width:560px){
+  #catalogGrid{gap:14px;margin-top:22px}
+  #catalogGrid .catalog-card{grid-template-columns:108px minmax(0,1fr);min-height:142px;box-shadow:3px 3px 0 var(--ink)}
+  #catalogGrid .course-art{height:100%;min-height:142px;border-right:2px solid var(--ink);border-bottom:0;font-size:42px}
+  #catalogGrid .course-art:after{width:76px;height:76px}
+  #catalogGrid .course-body{display:block;padding:13px 14px}
+  #catalogGrid .audience-badge{padding:2px 7px;font-size:8px}
+  #catalogGrid .course-meta{margin-left:5px;font-size:8px;letter-spacing:.08em}
+  #catalogGrid .course-body h3{font-size:20px;line-height:1.25;margin:6px 0 4px}
+  #catalogGrid .course-body p{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;font-size:10px;line-height:1.55;margin:0 0 8px}
+  #catalogGrid .course-footer{display:flex;min-width:0;border-top:1px dashed var(--line);border-left:0;padding:7px 0 0;gap:5px;flex-direction:row;justify-content:space-between;font-size:9px}
+  #catalogGrid .course-footer span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .page-content{padding-left:16px;padding-right:16px}
+  .audience-switch,.category-filter{gap:7px;margin-bottom:14px}
+  .audience-switch button,.category-filter button{padding:6px 11px;font-size:11px}
+}
+@media(max-width:560px){
+  .calendar-toolbar{margin-bottom:18px}
+  .calendar-toolbar h2{font-size:27px;line-height:1.35}
+  .calendar-toolbar .month-switch{margin-top:12px;justify-content:space-between}
+  .calendar-audience{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .calendar-audience button{padding:7px 4px;font-size:10px}
+  .single-calendar{width:100%;min-width:0}
+  .calendar-panel{width:100%;overflow:visible;box-shadow:3px 3px 0 var(--ink)}
+  .calendar-panel>header,
+  .calendar-weekdays,
+  .calendar-grid{width:100%;min-width:0}
+  .calendar-panel>header{padding:11px 12px}
+  .calendar-panel h3{font-size:20px}
+  .calendar-weekdays span{padding:6px 0;font-size:8px}
+  .calendar-day{min-width:0;min-height:66px;padding:3px 2px;overflow:hidden}
+  .day-number{font-size:9px;margin-bottom:2px}
+  .calendar-event{padding:3px 2px;margin-top:2px;border-radius:2px;font-size:7px;line-height:1.25;overflow:hidden}
+  .calendar-event b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .calendar-event small{display:block;font-size:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .demo-notice{font-size:10px;line-height:1.6}
+}
+.home-slideshow{position:relative;display:block;min-height:720px;height:100vh;background:var(--cream);overflow:hidden}
+.hero-slides,.hero-slide{position:absolute;inset:0}
+.hero-slide{opacity:0;visibility:hidden;transition:opacity .7s ease;z-index:0}
+.hero-slide.active{opacity:1;visibility:visible}
+.hero-slide img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.hero-slide.slide-placeholder{display:grid;place-items:center;align-content:center;gap:8px;background:var(--green);color:var(--ink);font-weight:700}
+.hero-slide.slide-placeholder small{font-size:9px;letter-spacing:.18em}
+.hero-shade{position:absolute;inset:0;background:rgba(84,42,34,.42);z-index:1}
+.home-slideshow .hero-copy{position:relative;z-index:2;display:flex;min-height:100%;width:min(720px,75vw);padding:130px 8vw 90px;flex-direction:column;justify-content:center;align-items:flex-start;color:var(--paper)}
+.home-slideshow .hero-copy>p:nth-of-type(2){max-width:540px}
+.home-slideshow .hero-copy .underlink,.home-slideshow .hero-copy h1 em{color:var(--paper)}
+.slide-arrow{position:absolute;top:50%;z-index:3;width:44px;height:44px;border:1px solid var(--paper);border-radius:50%;background:rgba(84,42,34,.55);color:var(--paper);cursor:pointer}
+.slide-arrow.previous{left:24px}.slide-arrow.next{right:24px}
+.slide-dots{position:absolute;z-index:3;left:50%;bottom:28px;display:flex;gap:9px;transform:translateX(-50%)}
+.slide-dots button{width:9px;height:9px;padding:0;border:1px solid var(--paper);border-radius:50%;background:transparent;cursor:pointer}
+.slide-dots button.active{background:var(--paper)}
+@media(max-width:800px){.home-slideshow{min-height:650px;height:88vh}.home-slideshow .hero-copy{width:100%;padding:110px 24px 80px;justify-content:flex-end}.home-slideshow .hero-copy h1{font-size:47px}.home-slideshow .hero-actions{align-items:flex-start;flex-direction:column;gap:16px}.slide-arrow{top:auto;bottom:24px;width:36px;height:36px}.slide-arrow.previous{left:20px}.slide-arrow.next{right:20px}.slide-dots{bottom:37px}}
+/* 首頁輪播是獨立區域：桌面右側、手機文字下方。 */
+.home-slideshow{display:grid;grid-template-columns:48% 52%;min-height:720px;height:auto;background:var(--cream)}
+.home-slideshow .hero-slides{position:relative;inset:auto;grid-column:2;grid-row:1;min-height:720px;overflow:hidden}
+.home-slideshow .hero-shade{display:none}
+.home-slideshow .hero-copy{grid-column:1;grid-row:1;position:relative;width:auto;min-height:720px;padding:120px 4vw 80px 10vw;color:var(--ink)}
+.home-slideshow .hero-copy .underlink{color:var(--ink)}
+.home-slideshow .hero-copy h1 em{color:var(--coral)}
+.home-slideshow .slide-arrow{top:50%;background:rgba(84,42,34,.72)}
+.home-slideshow .slide-arrow.previous{left:calc(48% + 20px)}
+.home-slideshow .slide-arrow.next{right:20px}
+.home-slideshow .slide-dots{left:74%;bottom:24px}
+@media(max-width:800px){
+  .home-slideshow{display:grid;grid-template-columns:1fr;grid-template-rows:auto 400px;min-height:0;height:auto;padding-top:68px}
+  .home-slideshow .hero-copy{grid-column:1;grid-row:1;min-height:0;width:100%;padding:65px 24px 55px;justify-content:center;color:var(--ink)}
+  .home-slideshow .hero-copy .underlink{color:var(--ink)}
+  .home-slideshow .hero-slides{grid-column:1;grid-row:2;min-height:400px;height:400px}
+  .home-slideshow .slide-arrow{top:auto;bottom:182px}
+  .home-slideshow .slide-arrow.previous{left:18px}
+  .home-slideshow .slide-arrow.next{right:18px}
+  .home-slideshow .slide-dots{left:50%;bottom:18px}
+}
+/* 輪播統一排列：桌面與手機都是圖片在上、文字在下。 */
+.home-slideshow{display:grid;grid-template-columns:1fr;grid-template-rows:540px auto;min-height:0;height:auto;padding:0}
+.home-slideshow .hero-slides{grid-column:1;grid-row:1;min-height:540px;height:540px}
+.home-slideshow .hero-copy{grid-column:1;grid-row:2;min-height:0;width:100%;padding:70px 10vw 80px;justify-content:center;color:var(--ink)}
+.home-slideshow .slide-arrow{top:248px}
+.home-slideshow .slide-arrow.previous{left:28px}
+.home-slideshow .slide-arrow.next{right:28px}
+.home-slideshow .slide-dots{top:495px;bottom:auto;left:50%}
+@media(max-width:800px){
+  .home-slideshow{grid-template-rows:380px auto;padding:0}
+  .home-slideshow .hero-slides{grid-row:1;min-height:380px;height:380px}
+  .home-slideshow .hero-copy{grid-row:2;padding:50px 24px 65px;justify-content:center}
+  .home-slideshow .slide-arrow{top:180px;bottom:auto}
+  .home-slideshow .slide-arrow.previous{left:16px}
+  .home-slideshow .slide-arrow.next{right:16px}
+  .home-slideshow .slide-dots{top:345px;bottom:auto;left:50%}
+}
+/* 主頁導覽與其他內頁一致，不覆蓋輪播圖片。 */
+body>.site-header:not(.page-header){position:relative;top:auto;left:auto;background:var(--cream);border-bottom:2px solid var(--ink)}
+body>.site-header:not(.page-header)+main{position:relative}
+.course-query-actions{display:flex;gap:16px;flex-wrap:wrap}
+.course-query-actions .button{min-width:190px}
+@media(max-width:560px){.course-query-actions{display:flex;width:100%;flex-direction:column;align-items:flex-start;gap:13px}.course-query-actions .button{width:auto;min-width:190px;padding:13px 20px;font-size:12px;box-shadow:4px 4px 0}}
+.registration-heading{font-size:42px;line-height:1.35;margin-top:0}
+.course-choice-fieldset{border:0;padding:0;margin:0 0 24px}
+.course-choice-fieldset legend{font-size:11px;font-weight:700;margin-bottom:10px}
+.course-checkboxes{display:grid;gap:9px;max-height:330px;overflow:auto;padding:3px 6px 6px 3px}
+.course-check{display:flex!important;align-items:flex-start;gap:11px;margin:0!important;padding:12px;border:1px solid var(--line);background:var(--paper);cursor:pointer}
+.course-check:has(input:checked){border:2px solid var(--coral);padding:11px;background:var(--cream)}
+.course-check input{flex:0 0 auto;width:17px;height:17px;margin:3px 0 0;accent-color:var(--coral)}
+.course-check span{display:block}.course-check b{display:block;font-size:13px}.course-check small{display:block;margin-top:2px;font-size:9px;font-weight:400}
+.registration-success{grid-column:2;padding:38px;border:2px solid var(--ink);background:var(--paper);box-shadow:8px 8px 0 var(--ink);text-align:center}
+.registration-success h2{font-size:38px;margin:5px 0 12px}.registration-success>p{max-width:520px;margin:0 auto 24px}
+.wechat-qr-wrap{width:230px;height:230px;margin:20px auto;display:grid;place-items:center;border:2px solid var(--ink);background:white;padding:12px}
+.wechat-qr-wrap img{display:block;width:100%;height:100%;object-fit:contain}
+.qr-placeholder{display:grid;width:100%;height:100%;place-items:center;background:var(--cream);font-size:12px;font-weight:700}
+.registration-success .button{width:max-content;margin:28px auto 0}
+@media(max-width:850px){.registration-success{grid-column:1}.registration-heading{font-size:34px}}
+@media(max-width:560px){.course-checkboxes{max-height:280px}.wechat-qr-wrap{width:210px;height:210px}.registration-success{padding:27px 20px}}
