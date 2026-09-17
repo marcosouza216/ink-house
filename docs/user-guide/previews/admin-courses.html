@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>後台預覽｜課程管理</title>
+  <link rel="stylesheet" href="../../../css/admin.css">
+  <link rel="stylesheet" href="../../../css/brand.css">
+  <style>[hidden]{display:none!important}</style>
+</head>
+<body>
+<div class="dashboard">
+  <aside>
+    <a class="brand" href="#"><img class="brand-logo" src="../../../assets/images/logo-cropped.png" alt="賞心學堂 Ink House"></a>
+    <nav>
+      <button>⌂　總覽</button>
+      <button class="active">◫　課程管理</button>
+      <button>▣　主頁照片</button>
+      <button>♙　報名名單</button>
+    </nav>
+    <button class="logout">↪　登出</button>
+  </aside>
+  <main>
+    <header><div><p>ART STUDIO</p><h1>課程管理</h1></div></header>
+    <section>
+      <div class="panel">
+        <div class="panel-head"><h2>所有課程</h2><button class="add-button">＋ 新增課程</button></div>
+        <table>
+          <thead><tr><th>課程</th><th>對象</th><th>類別</th><th>時間／費用</th><th>狀態</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>兒童水彩班</strong></td>
+              <td><span class="badge">兒童班</span></td>
+              <td>水彩</td>
+              <td>逢星期三 17:00–18:30<br>MOP 230</td>
+              <td>已發布</td>
+              <td class="actions"><button>編輯</button><button class="delete">刪除</button></td>
+            </tr>
+            <tr>
+              <td><strong>成人素描班</strong></td>
+              <td><span class="badge">成人班</span></td>
+              <td>素描</td>
+              <td>逢星期一 19:30–21:30<br>MOP 280</td>
+              <td>已發布</td>
+              <td class="actions"><button>編輯</button><button class="delete">刪除</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

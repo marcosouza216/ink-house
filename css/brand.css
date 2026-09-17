@@ -25,7 +25,7 @@ footer .brand-logo{width:155px;filter:brightness(0) invert(1)}
 .coral,.add-button,.login-card button,.modal-actions button:last-child,.calendar-event{background:var(--coral)!important;color:var(--paper)!important}
 .hero-stamp,.selected-course,.contact-section,.kids .calendar-event,.calendar-panel>header{background:var(--yellow)!important;color:var(--ink)!important}
 .course-card,.catalog-card,.registration-form,.signup form,.contact-grid article,.calendar-panel,.login-card,.panel,.stat,.nav-cta,.audience-switch button,.category-filter button,.month-switch button{background:var(--paper)!important}
-.course-art:not(.has-image),.blank-art,.blank-photo{background:var(--green)!important;background-image:none!important;color:var(--ink)!important}
+.course-art:not(.has-image),.blank-art,.blank-photo:not(.has-image){background:var(--green)!important;background-image:none!important;color:var(--ink)!important}
 .page-header{border-bottom-color:var(--ink)}
 
 @media(max-width:800px){.site-header .brand-logo{width:142px;max-height:48px}footer .brand-logo{width:140px}.dashboard aside .brand-logo{width:135px}.site-header nav.open{background:linear-gradient(145deg,var(--cream),var(--paper),var(--pink))!important}}

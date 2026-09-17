@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>後台預覽｜新增課程</title>
+  <link rel="stylesheet" href="../../../css/admin.css">
+  <link rel="stylesheet" href="../../../css/brand.css">
+  <style>
+    body{background:#1e2d2499;margin:0;padding:16px}
+    #editorForm{background:var(--paper,#fffaf0);border-radius:8px;max-height:calc(100vh - 32px);overflow:auto}
+  </style>
+</head>
+<body>
+<form id="editorForm">
+  <header><h2>新增課程</h2><button type="button" aria-label="關閉">×</button></header>
+  <label>課程名稱<input value="兒童水彩班" readonly></label>
+  <label>課程對象<select><option>兒童班</option><option>成人班</option></select></label>
+  <label>課程類別<input value="水彩" readonly></label>
+  <label>價錢 MOP<input value="230" readonly></label>
+  <div class="admin-form-row">
+    <label>課程開始日期<input type="date" value="2026-09-01" readonly></label>
+    <label>課程結束日期<input type="date" value="2026-12-31" readonly></label>
+  </div>
+  <fieldset class="weekday-field">
+    <legend>逢星期幾（可多選）</legend>
+    <label><input type="checkbox"> 星期日</label>
+    <label><input type="checkbox"> 星期一</label>
+    <label><input type="checkbox"> 星期二</label>
+    <label><input type="checkbox" checked> 星期三</label>
+    <label><input type="checkbox"> 星期四</label>
+    <label><input type="checkbox"> 星期五</label>
+    <label><input type="checkbox"> 星期六</label>
+  </fieldset>
+  <div class="admin-form-row">
+    <label>上課開始時間<input type="time" value="17:00" readonly></label>
+    <label>上課結束時間<input type="time" value="18:30" readonly></label>
+  </div>
+  <label>上課老師<input value="林老師" readonly></label>
+  <label>課程簡介<textarea readonly>從水分控制到色彩混合，用透明而流動的顏色記錄觀察。</textarea></label>
+  <label>課程圖片<input type="file" disabled><small>JPG、PNG、WebP 或 GIF，最多 5MB</small></label>
+  <div class="modal-actions">
+    <button type="button">取消</button>
+    <button type="button">儲存變更</button>
+  </div>
+</form>
+</body>
+</html>

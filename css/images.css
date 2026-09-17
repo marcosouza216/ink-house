@@ -25,6 +25,24 @@
   .detail-placeholder.has-image{height:min(72vw,420px)}
 }
 
+.blank-photo.has-image{
+  padding:0;
+  overflow:hidden;
+  border:12px solid #fff;
+  background:none;
+  background-image:none;
+  box-shadow:7px 8px 0 #263b5920;
+}
+.blank-photo.has-image span,
+.blank-photo.has-image small{display:none}
+.blank-photo.has-image img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+
 @media(max-width:560px){
   #catalogGrid .course-art.has-image img{object-position:center}
   .detail-placeholder.has-image{height:68vw;min-height:240px;max-height:340px}

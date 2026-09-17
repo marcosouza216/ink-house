@@ -11,10 +11,46 @@
 
 1. `registration-upgrade.sql`：加入多選課程和微信欄位。
 2. `course-fields-upgrade.sql`：加入老師、日期、每週上課日和上下課時間，并把課程類別改为自由输入。
+3. `site-photos.sql`：加入主頁輪播和歡迎區塊照片。
+4. `notify-registration.sql`：報名成功後寄信到管理員信箱。
+
+## 報名通知郵件
+
+報名寫入資料庫後會自動寄信，不經過前端。
+
+測試階段收件人是 `marco2002216@gmail.com`。設定步驟：
+
+1. 用這個 Gmail 到 [resend.com](https://resend.com) 註冊（免費）。
+2. 建立 API key。
+3. Dashboard → Database → Extensions，打開 `pg_net`。
+4. 打開 `notify-registration.sql`，把檔案裡的 `re_xxxxxxxx` 換成你的 API key。
+5. 整份在 SQL Editor 執行。
+6. 再執行 `select public.test_registration_email();`，結果應為 `"ok": true`。
+7. 檢查 Gmail（含垃圾郵件）。若沒收到，執行：
+
+```sql
+select * from public.email_log order by created_at desc limit 5;
+select id, status_code, content, error_msg from net._http_response order by created desc limit 5;
+```
+
+寄件人必須是已在 Resend 驗證的網域。請到 [resend.com/domains](https://resend.com/domains) 加入 `inkhouse-macao.com`，把顯示的 DNS 紀錄加到網域商，驗證通過後即可寄信。
+
+測試階段收件人仍是 `marco2002216@gmail.com`。驗證網域後在 SQL Editor 執行：
+
+```sql
+update public.site_settings set value = 'Ink House <noreply@inkhouse-macao.com>' where key = 'notify_from';
+update public.site_settings set value = 'marco2002216@gmail.com' where key = 'notify_email';
+```
+
+正式改寄到工作室信箱：
+
+```sql
+update public.site_settings set value = 'inkhouse.macao@gmail.com' where key = 'notify_email';
+```
 
 把中心正式微信 QR Code 命名為 `wechat-qr.png`，放到網站的 `assets` 資料夾。報名成功後系統會自動顯示這張圖片及付款提示。
 
-課程圖片会上传到 Supabase Storage 的 `course-images` bucket，限制为每张最多 5MB。
+課程圖片和主頁照片会上传到 Supabase Storage 的 `course-images` bucket，限制为每张最多 5MB。
 
 不要把 `service_role` key 放在网页程式码中。前端只能使用公开的 anon key；安全权限由 Row Level Security 管理。
 

@@ -5,7 +5,7 @@ const $$ = (selector) => [...document.querySelectorAll(selector)];
   if (document.querySelector(`link[href^="${href}"]`)) return;
   const stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = `css/${href}?v=20260828-3`;
+  stylesheet.href = `css/${href}?v=20260917-2`;
   document.head.appendChild(stylesheet);
 });
 
@@ -42,6 +42,14 @@ function setupHomeSlideshow() {
   if (!slideshow) return;
   const slides = $$('.hero-slide');
   const dots = $('.slide-dots');
+  const prev = $('.slide-arrow.previous');
+  const next = $('.slide-arrow.next');
+  if (dots) dots.innerHTML = '';
+  if (!slides.length) return;
+  const showControls = slides.length > 1;
+  if (prev) prev.hidden = !showControls;
+  if (next) next.hidden = !showControls;
+  if (dots) dots.hidden = !showControls;
   let current = 0;
   let timer;
 
@@ -50,7 +58,7 @@ function setupHomeSlideshow() {
     slides.forEach((slide, slideIndex) => slide.classList.toggle('active', slideIndex === current));
     $$('.slide-dots button').forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === current));
     clearInterval(timer);
-    timer = setInterval(() => show(current + 1), 5000);
+    if (showControls) timer = setInterval(() => show(current + 1), 5000);
   };
 
   slides.forEach((slide, index) => {
@@ -58,13 +66,29 @@ function setupHomeSlideshow() {
     dot.type = 'button';
     dot.setAttribute('aria-label', `查看第 ${index + 1} 張照片`);
     dot.addEventListener('click', () => show(index));
-    dots.appendChild(dot);
+    if (dots) dots.appendChild(dot);
   });
-  $('.slide-arrow.previous').addEventListener('click', () => show(current - 1));
-  $('.slide-arrow.next').addEventListener('click', () => show(current + 1));
+  prev?.addEventListener('click', () => show(current - 1));
+  next?.addEventListener('click', () => show(current + 1));
   slideshow.addEventListener('mouseenter', () => clearInterval(timer));
-  slideshow.addEventListener('mouseleave', () => { timer = setInterval(() => show(current + 1), 5000); });
+  slideshow.addEventListener('mouseleave', () => { if (showControls) timer = setInterval(() => show(current + 1), 5000); });
   show(0);
+}
+
+function applyHomePhotos(photos) {
+  const escape = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const slides = photos.filter((photo) => photo.placement === 'slideshow').sort((a, b) => a.sortOrder - b.sortOrder);
+  const slidesWrap = $('.hero-slides');
+  if (slidesWrap && slides.length) {
+    slidesWrap.innerHTML = slides.map((photo, index) => `<div class="hero-slide${index === 0 ? ' active' : ''}"><img src="${escape(photo.imageUrl)}" alt="${escape(photo.alt || '賞心學堂')}"></div>`).join('');
+  }
+  const fillBlank = (element, photo, fallback) => {
+    if (!element || !photo?.imageUrl) return;
+    element.classList.add('has-image');
+    element.innerHTML = `<img src="${escape(photo.imageUrl)}" alt="${escape(photo.alt || fallback)}">`;
+  };
+  fillBlank($('.about-pics .large'), photos.find((photo) => photo.placement === 'about-large'), '學堂空間');
+  fillBlank($('.about-pics .small'), photos.find((photo) => photo.placement === 'about-small'), '創作過程');
 }
 
 const weekdayNames = ['日', '一', '二', '三', '四', '五', '六'];
@@ -172,12 +196,21 @@ function setupRegistration(courses) {
 
 async function init() {
   setupChrome();
+  try {
+    await InkData.ready;
+    if ($('.home-slideshow') || $('.about-pics')) {
+      try { applyHomePhotos(await InkData.sitePhotos()); } catch {}
+    }
+  } catch {}
   setupHomeSlideshow();
   try {
-    await InkData.ready; const courses = await InkData.courses();
+    await InkData.ready;
+    const courses = await InkData.courses();
     if ($('#featuredGrid')) { $('#featuredGrid').innerHTML = courses.filter((course) => course.featured).slice(0, 4).map(courseCard).join(''); bindCourseCards(); }
     if ($('#catalogGrid')) renderCatalog(courses); if ($('#courseDetail')) renderDetail(courses); if ($('#scheduleList')) await renderTimetable(courses); if ($('#registrationForm')) setupRegistration(courses);
-  } catch (error) { const target = $('#catalogGrid') || $('#featuredGrid') || $('#scheduleList') || $('#courseDetail') || $('#formStatus'); if (target) target.innerHTML = `<p class="empty-state">暫時無法連接課程資料：${error.message}</p>`; }
+  } catch (error) {
+    const target = $('#catalogGrid') || $('#featuredGrid') || $('#scheduleList') || $('#courseDetail') || $('#formStatus'); if (target) target.innerHTML = `<p class="empty-state">暫時無法連接課程資料：${error.message}</p>`;
+  }
 }
 
 init();

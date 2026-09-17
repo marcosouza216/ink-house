@@ -30,6 +30,8 @@ python3 -m http.server 8080
 
 打开 `http://localhost:8080`。管理后台位于 `/admin.html`。
 
+圖文使用說明（手機版截圖）：打開 `docs/使用說明.html`。
+
 ## Supabase
 
 全新项目依次执行：
@@ -42,6 +44,8 @@ python3 -m http.server 8080
 
 1. `supabase/registration-upgrade.sql`
 2. `supabase/course-fields-upgrade.sql`
+3. `supabase/site-photos.sql`
+4. `supabase/notify-registration.sql`（報名成功發郵件，需先設定 Resend API key）
 
 前端只使用 Supabase anon key，数据权限由 Row Level Security 控制。不要在仓库或浏览器代码中使用 `service_role` key。
 
