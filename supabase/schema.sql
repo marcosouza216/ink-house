@@ -104,7 +104,7 @@ create table public.site_settings (
 );
 
 insert into public.site_settings (key, value) values
-  ('notify_email', 'marco2002216@gmail.com'),
+  ('notify_email', 'inkhouse.macao@gmail.com'),
   ('notify_from', 'Ink House <noreply@inkhouse-macao.com>');
 
 create table public.email_log (
@@ -150,7 +150,7 @@ begin
   select value into api_key from public.site_settings where key = 'resend_api_key';
   select value into notify_email from public.site_settings where key = 'notify_email';
   select value into from_address from public.site_settings where key = 'notify_from';
-  notify_email := coalesce(nullif(notify_email, ''), 'marco2002216@gmail.com');
+  notify_email := coalesce(nullif(notify_email, ''), 'inkhouse.macao@gmail.com');
   from_address := coalesce(nullif(from_address, ''), 'Ink House <noreply@inkhouse-macao.com>');
 
   if api_key is null or api_key = '' or api_key like 're_xxxxxxxx%' then

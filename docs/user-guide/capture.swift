@@ -15,7 +15,8 @@ struct Job {
 }
 
 let jobs: [Job] = [
-  Job(url: "\(base)/contact.html", file: "08-contact.png", js: "const el=document.querySelector('.contact-section')||document.querySelector('.contact-grid'); if(el) window.scrollTo(0, el.getBoundingClientRect().top+window.scrollY-72);")
+  Job(url: "\(base)/index.html", file: "01-home.png", js: "window.scrollTo(0,0);"),
+  Job(url: "\(base)/index.html", file: "01-home-about.png", js: "const el=document.querySelector('#about'); if(el) window.scrollTo(0, el.getBoundingClientRect().top+window.scrollY-56);")
 ]
 
 class Capturer: NSObject, WKNavigationDelegate {

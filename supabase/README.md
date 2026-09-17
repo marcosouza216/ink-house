@@ -18,7 +18,7 @@
 
 報名寫入資料庫後會自動寄信，不經過前端。
 
-測試階段收件人是 `marco2002216@gmail.com`。設定步驟：
+報名寫入資料庫後會自動寄信，不經過前端。收件人是 `inkhouse.macao@gmail.com`，寄件人是 `Ink House <noreply@inkhouse-macao.com>`。
 
 1. 用這個 Gmail 到 [resend.com](https://resend.com) 註冊（免費）。
 2. 建立 API key。
@@ -35,14 +35,7 @@ select id, status_code, content, error_msg from net._http_response order by crea
 
 寄件人必須是已在 Resend 驗證的網域。請到 [resend.com/domains](https://resend.com/domains) 加入 `inkhouse-macao.com`，把顯示的 DNS 紀錄加到網域商，驗證通過後即可寄信。
 
-測試階段收件人仍是 `marco2002216@gmail.com`。驗證網域後在 SQL Editor 執行：
-
-```sql
-update public.site_settings set value = 'Ink House <noreply@inkhouse-macao.com>' where key = 'notify_from';
-update public.site_settings set value = 'marco2002216@gmail.com' where key = 'notify_email';
-```
-
-正式改寄到工作室信箱：
+改收件人：
 
 ```sql
 update public.site_settings set value = 'inkhouse.macao@gmail.com' where key = 'notify_email';
