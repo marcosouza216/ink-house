@@ -5,7 +5,7 @@ const $$ = (selector) => [...document.querySelectorAll(selector)];
   if (document.querySelector(`link[href^="${href}"]`)) return;
   const stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = `css/${href}?v=20260917-2`;
+  stylesheet.href = `css/${href}?v=20260918-2`;
   document.head.appendChild(stylesheet);
 });
 
