@@ -1,4 +1,4 @@
--- GitHub 圖片同步：上傳後觸發 Action，網站改讀倉庫圖片。
+-- GitHub 圖片同步：上傳後觸發 .github/workflows/sync-images.yml，網站改讀倉庫圖片。
 -- 在 GitHub 建立 classic PAT（repo 權限），只在 Supabase SQL Editor 填 token，不要寫進這個檔案。
 
 insert into public.site_settings (key, value) values

@@ -57,13 +57,14 @@ python3 -m http.server 8080
 
 後台上傳會先存到 Supabase，網站可立刻顯示。同步進 GitHub 後，頁面會優先讀 `assets/images/uploads/`，不再消耗 Supabase 流量。
 
-1. 在 GitHub 建立 classic PAT（勾選 `repo`），在 SQL Editor 執行 `supabase/github-image-sync.sql`，再把 token 填入：
+1. 確認 GitHub 倉庫已開啟 Actions。
+2. 在 GitHub 建立 classic PAT（勾選 `repo`），在 SQL Editor 執行 `supabase/github-image-sync.sql`，再把 token 填入：
 
    ```sql
    update public.site_settings set value = 'ghp_你的token' where key = 'github_token';
    ```
 
-2. 之後每次後台上傳，會自動觸發 Action `Sync course images`，把檔案提交到倉庫。
+3. 之後每次後台上傳，會觸發 Action `Sync course images`，把檔案提交到 `assets/images/uploads/`。也可在 Actions 頁手動 Run workflow。沒觸發時，Action 每小時仍會自動同步一次。
 
 ## 微信 QR Code
 
