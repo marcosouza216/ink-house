@@ -3,64 +3,95 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>課程報名｜賞心學堂</title>
+  <title>預約試堂｜賞心學堂</title>
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/pages.css?v=20260919-dates">
 </head>
 <body>
   <header class="site-header page-header">
     <a class="brand" href="index.html"><b>ink</b><span>house</span><small>賞心學堂</small></a>
     <button class="menu-button" aria-label="開啟選單"><i></i><i></i></button>
-    <nav><a href="index.html">主頁</a><a href="courses.html">藝術課程</a><a href="schedule.html">時間表</a><a class="nav-cta" href="signup.html">立即報名</a></nav>
+    <nav>
+      <a href="index.html#home">主頁</a>
+      <a href="index.html?audience=kids#courses">兒童課程</a>
+      <a href="index.html?audience=adult#courses">成人課程</a>
+      <a href="index.html#schedule">時間表</a>
+      <a href="index.html#contact">聯絡我們</a>
+    </nav>
   </header>
   <main>
     <section class="page-hero">
-      <p class="kicker">COURSE REGISTRATION</p><h1>課程報名</h1>
-      <p>可同時選擇多項感興趣的課程。送出後請加入中心微信完成付款及確認。</p>
+      <p class="kicker">TRIAL BOOKING</p>
+      <h1>預約試堂</h1>
+      <p>兒童班與成人班表格不同，請先選擇班別。</p>
     </section>
     <section class="page-content registration-layout">
       <div>
         <p class="kicker">YOUR SELECTION</p>
-        <h2 class="registration-heading">選擇喜歡的課程，<br>開始你的創作旅程。</h2>
-        <div class="selected-course" id="selectedCourse">尚未選擇課程</div>
+        <h2 class="registration-heading">選擇班別，<br>開始預約試堂。</h2>
+        <div class="audience-switch" id="signupAudience">
+          <button type="button" data-signup-audience="kids">兒童班</button>
+          <button type="button" data-signup-audience="adult">成人班</button>
+        </div>
+        <div class="selected-course" id="selectedCourse">請先選擇班別與課程</div>
       </div>
       <form class="registration-form" id="registrationForm">
-        <fieldset class="course-choice-fieldset">
-          <legend>報名課程（可多選）</legend>
-          <div class="course-checkboxes" id="courseOptions"></div>
-        </fieldset>
-        <div class="form-row">
-          <label>名稱<input name="name" required autocomplete="name"></label>
-          <label>年齡<input name="age" required inputmode="numeric"></label>
+        <input type="hidden" name="audience" id="signupMode" value="">
+        <div id="kidsFields" hidden>
+          <label>家長姓名<input name="name" autocomplete="name"></label>
+          <label>報名課程
+            <select name="courseId" id="kidsCourse"></select>
+          </label>
+          <label>選擇時間
+            <select name="selectedTime" id="kidsTime"></select>
+          </label>
+          <label>電話<input name="phone" inputmode="tel" placeholder="+853 6275 4126"></label>
+          <label>微信（請填寫正確微信，我們會用微信聯繫）
+            <input name="wechat" autocomplete="off">
+          </label>
+          <p class="fee-line" id="kidsFee"></p>
         </div>
-        <div class="form-row">
-          <label>電話<input name="phone" required inputmode="tel" placeholder="+853"></label>
-          <label>微信<input name="wechat" required autocomplete="off"></label>
+        <div id="adultFields" hidden>
+          <label>姓名<input name="adultName" autocomplete="name"></label>
+          <label>電話<input name="adultPhone" inputmode="tel" placeholder="+853 6275 4126"></label>
+          <label>微信
+            <input name="adultWechat" autocomplete="off">
+            <small class="field-hint">請務必填寫正確的微信帳號，否則無法聯絡確認。</small>
+          </label>
+          <label>選擇課堂
+            <select name="adultCourseId" id="adultCourse"></select>
+          </label>
+          <p class="fee-line" id="adultFee"></p>
+          <fieldset class="notice-field">
+            <legend>報讀須知</legend>
+            <ol>
+              <li>課程費用一經確認繳交，恕不接受退課、退款。</li>
+              <li>學員個人因素缺席，不設退款、補課、調課；或會影響後續課程進展。</li>
+              <li>使用持續進修資助者，出席率需達70%，否則將扣留保證金，病假等不設例外。</li>
+              <li>若課程因人數不足或中心因素無法開課，可調整時段或全額退款。</li>
+              <li>本課程僅開放年滿16歲人士報讀。</li>
+            </ol>
+            <label class="consent"><input type="checkbox" name="adultNotice"><span>我已閱讀並同意以上報讀須知。</span></label>
+          </fieldset>
         </div>
-        <label>如果現有時間不合，請選擇喜歡的時間段
-          <select name="preferredTime">
-            <option value="">現有課堂時間可以</option>
-            <option>平日上午</option><option>平日下午</option><option>平日晚上</option>
-            <option>星期六上午</option><option>星期六下午</option>
-            <option>星期日上午</option><option>星期日下午</option>
-          </select>
-        </label>
-        <label class="consent"><input type="checkbox" required><span>我同意中心使用上述資料作課程聯絡及付款確認用途。</span></label>
-        <button class="button dark" type="submit">送出報名 →</button>
+        <button class="button dark" type="submit">送出預約 →</button>
         <p id="formStatus" role="status"></p>
       </form>
       <section class="registration-success" id="registrationSuccess" hidden>
-        <p class="kicker">REGISTRATION RECEIVED</p><h2>報名成功！</h2>
-        <p>請掃描下方 QR Code 加入中心微信，並透過微信與我們確認課程及進行付款。</p>
+        <p class="kicker">BOOKING RECEIVED</p>
+        <h2>預約成功！</h2>
+        <div id="paymentDetails"></div>
+        <p>請掃描下方 QR Code 加入中心微信，並把付款截圖發給我們。</p>
         <div class="wechat-qr-wrap">
           <img src="assets/wechat-qr.png" alt="賞心學堂中心微信 QR Code" id="wechatQr">
           <div class="qr-placeholder" id="qrPlaceholder">中心微信 QR Code</div>
         </div>
         <strong>微信：inkhouse_macao</strong>
-        <a class="button coral" href="courses.html">繼續查看課程 →</a>
+        <a class="button coral" href="index.html#courses">返回課程 →</a>
       </section>
     </section>
   </main>
-  <script src="js/data.js"></script><script src="js/site.js"></script>
+  <script src="js/data.js?v=20260919-full"></script>
+  <script src="js/site.js?v=20260919-nosample"></script>
 </body>
 </html>

@@ -45,9 +45,25 @@ python3 -m http.server 8080
 1. `supabase/registration-upgrade.sql`
 2. `supabase/course-fields-upgrade.sql`
 3. `supabase/site-photos.sql`
-4. `supabase/notify-registration.sql`（報名成功發郵件，需先設定 Resend API key）
+4. `supabase/notify-registration.sql`
+5. `supabase/site-redesign.sql`（兒童三班、名額與作品）
+6. `supabase/adult-class-dates.sql`（班級、逐日上課日期、學費／持教）
+7. `supabase/kids-enlighten.sql`（啟蒙恆常班文案、學習內容與重點）
+8. `supabase/adult-oct-nov.sql`（10～11 月成人班與兒童報名費 MOP 100）
 
 前端只使用 Supabase anon key，数据权限由 Row Level Security 控制。不要在仓库或浏览器代码中使用 `service_role` key。
+
+## 圖片上傳（Supabase → GitHub）
+
+後台上傳會先存到 Supabase，網站可立刻顯示。同步進 GitHub 後，頁面會優先讀 `assets/images/uploads/`，不再消耗 Supabase 流量。
+
+1. 在 GitHub 建立 classic PAT（勾選 `repo`），在 SQL Editor 執行 `supabase/github-image-sync.sql`，再把 token 填入：
+
+   ```sql
+   update public.site_settings set value = 'ghp_你的token' where key = 'github_token';
+   ```
+
+2. 之後每次後台上傳，會自動觸發 Action `Sync course images`，把檔案提交到倉庫。
 
 ## 微信 QR Code
 

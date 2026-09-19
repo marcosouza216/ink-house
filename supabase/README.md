@@ -13,6 +13,10 @@
 2. `course-fields-upgrade.sql`：加入老師、日期、每週上課日和上下課時間，并把課程類別改为自由输入。
 3. `site-photos.sql`：加入主頁輪播和歡迎區塊照片。
 4. `notify-registration.sql`：報名成功後寄信到管理員信箱。
+5. `site-redesign.sql`：兒童三班、名額／已滿、老師與學生作品。
+6. `adult-class-dates.sql`：班級名稱、一天一天輸入的上課日期、學費與持教。
+7. `kids-enlighten.sql`：啟蒙恆常班（3-6歲）文案、學習內容與重點。
+8. `adult-oct-nov.sql`：10～11 月成人班與兒童報名費 MOP 100。
 
 ## 報名通知郵件
 
