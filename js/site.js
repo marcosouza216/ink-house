@@ -183,12 +183,23 @@ function loadCatalog(courses) {
 }
 
 let homeAudience = 'kids';
+let calendarAudience = 'kids';
 let redrawCatalog = () => {};
 let redrawCalendar = () => {};
+
+function scrollToId(id) {
+  const section = document.getElementById(id);
+  if (!section) return;
+  const url = new URL(location.href);
+  url.hash = id;
+  history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 function setHomeAudience(next) {
   if (!['kids', 'adult'].includes(next)) return;
   homeAudience = next;
+  calendarAudience = next;
   $$('#courses [data-audience], .home-courses [data-audience]').forEach((item) => item.classList.toggle('active', item.dataset.audience === next));
   $$('[data-calendar-audience]').forEach((item) => item.classList.toggle('active', item.dataset.calendarAudience === next));
   const url = new URL(location.href);
@@ -196,6 +207,14 @@ function setHomeAudience(next) {
   history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
   redrawCatalog();
   redrawCalendar();
+}
+
+function setCalendarAudience(next) {
+  if (!['kids', 'adult'].includes(next)) return;
+  calendarAudience = next;
+  $$('[data-calendar-audience]').forEach((item) => item.classList.toggle('active', item.dataset.calendarAudience === next));
+  redrawCalendar();
+  scrollToId('schedule');
 }
 
 ['images.css', 'ui-refresh.css', 'brand.css'].forEach((href) => {
@@ -312,6 +331,20 @@ function clock(value) {
   return String(value || '').slice(0, 5);
 }
 
+function clockDate(value) {
+  if (!value) return '';
+  if (/^\d{1,2}:\d{2}/.test(String(value))) return clock(value);
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return clock(value);
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function timeRange(start, end) {
+  const from = clockDate(start) || clock(start);
+  const to = clockDate(end) || clock(end);
+  return from && to ? `${from}–${to}` : from;
+}
+
 function weeklySlots(course) {
   const own = course.weeklySlots || [];
   const fromTracks = (course.tracks || []).flatMap((track) => (track.slots || []).map((slot) => ({
@@ -421,7 +454,10 @@ function bindCourseCards() {
 function renderCatalog(courses) {
   if (!$('#catalogGrid')) return;
   const requested = new URLSearchParams(location.search).get('audience');
-  if (['kids', 'adult'].includes(requested)) homeAudience = requested;
+  if (['kids', 'adult'].includes(requested)) {
+    homeAudience = requested;
+    calendarAudience = requested;
+  }
   const render = () => {
     const list = homeAudience === 'kids' ? kidsCourses(courses) : courses.filter((course) => course.audience === 'adult');
     $('#catalogGrid').innerHTML = list.length ? list.map(courseCard).join('') : '<p class="empty-state">暫時沒有課程。</p>';
@@ -438,11 +474,8 @@ function renderCatalog(courses) {
       const next = link.dataset.jumpAudience;
       if (!next) return;
       event.preventDefault();
-      const url = new URL(location.href);
-      url.hash = 'courses';
-      history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
       setHomeAudience(next);
-      $('#courses')?.scrollIntoView({ behavior: 'smooth' });
+      scrollToId('courses');
     });
   });
   render();
@@ -640,7 +673,7 @@ async function renderTimetable(courses) {
   let monthOffset = 0;
   const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
   const render = () => {
-    const audience = homeAudience;
+    const audience = calendarAudience;
     const today = new Date();
     const shownMonth = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
     const year = shownMonth.getFullYear();
@@ -661,7 +694,7 @@ async function renderTimetable(courses) {
           const date = new Date(year, month, day);
           slots.filter((slot) => slot.weekday === date.getDay()).forEach((slot) => {
             const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            recurring.push({ courseId: course.id, startsAt: `${iso}T${clock(slot.start)}:00`, title: slotLabel(course, slot), trackId: slot.trackId, teacher: course.teacher });
+            recurring.push({ courseId: course.id, startsAt: `${iso}T${clock(slot.start)}:00`, endsAt: `${iso}T${clock(slot.end)}:00`, title: slotLabel(course, slot), trackId: slot.trackId, teacher: course.teacher });
           });
         }
         return;
@@ -670,7 +703,7 @@ async function renderTimetable(courses) {
         course.sessionDates.forEach((iso) => {
           const [sessionYear, sessionMonth] = iso.split('-').map(Number);
           if (sessionYear === year && sessionMonth === month + 1) {
-            recurring.push({ courseId: course.id, startsAt: `${iso}T${course.startTime}:00`, teacher: course.teacher });
+            recurring.push({ courseId: course.id, startsAt: `${iso}T${clock(course.startTime)}:00`, endsAt: `${iso}T${clock(course.endTime)}:00`, teacher: course.teacher });
           }
         });
         return;
@@ -681,7 +714,7 @@ async function renderTimetable(courses) {
       for (let day = 1; day <= lastDay; day += 1) {
         const date = new Date(year, month, day);
         if (date >= rangeStart && date <= rangeEnd && course.weekdays.includes(date.getDay())) {
-          recurring.push({ courseId: course.id, startsAt: `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T${course.startTime}:00`, teacher: course.teacher });
+          recurring.push({ courseId: course.id, startsAt: `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T${clock(course.startTime)}:00`, endsAt: `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T${clock(course.endTime)}:00`, teacher: course.teacher });
         }
       }
     });
@@ -698,7 +731,7 @@ async function renderTimetable(courses) {
       });
       cells += `<div class="calendar-day${date.getMonth() !== month ? ' outside' : ''}"><span class="day-number">${date.getDate()}</span>${events.map((session) => {
         const course = courses.find((item) => item.id === session.courseId);
-        const time = new Date(session.startsAt).toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
+        const time = timeRange(session.startsAt, session.endsAt || course.endTime);
         const href = session.trackId ? `course.html?id=${course.id}&track=${session.trackId}` : `course.html?id=${course.id}`;
         return `<a class="calendar-event" href="${href}"><b>${session.title || course.shortName || course.name}</b><small>${time}${course.isFull ? ' · 已滿' : ''}</small></a>`;
       }).join('')}</div>`;
@@ -707,9 +740,9 @@ async function renderTimetable(courses) {
   };
   $('#prevWeek')?.addEventListener('click', () => { monthOffset -= 1; render(); });
   $('#nextWeek')?.addEventListener('click', () => { monthOffset += 1; render(); });
-  $$('[data-calendar-audience]').forEach((button) => button.addEventListener('click', () => setHomeAudience(button.dataset.calendarAudience)));
+  $$('[data-calendar-audience]').forEach((button) => button.addEventListener('click', () => setCalendarAudience(button.dataset.calendarAudience)));
   redrawCalendar = render;
-  $$('[data-calendar-audience]').forEach((item) => item.classList.toggle('active', item.dataset.calendarAudience === homeAudience));
+  $$('[data-calendar-audience]').forEach((item) => item.classList.toggle('active', item.dataset.calendarAudience === calendarAudience));
   render();
 }
 
