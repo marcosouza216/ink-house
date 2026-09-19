@@ -221,7 +221,7 @@ function setCalendarAudience(next) {
   if (document.querySelector(`link[href^="${href}"]`)) return;
   const stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = `css/${href}?v=20260919-notice`;
+  stylesheet.href = `css/${href}?v=20260919-calcolor`;
   document.head.appendChild(stylesheet);
 });
 
@@ -343,6 +343,52 @@ function timeRange(start, end) {
   const from = clockDate(start) || clock(start);
   const to = clockDate(end) || clock(end);
   return from && to ? `${from}–${to}` : from;
+}
+
+const EVENT_PALETTE = [
+  ['#aa513c', '#fffaf0'],
+  ['#3d6b7a', '#fffaf0'],
+  ['#6b5b95', '#fffaf0'],
+  ['#5d7a4a', '#fffaf0'],
+  ['#c47a3a', '#fffaf0'],
+  ['#9b4d6c', '#fffaf0'],
+  ['#4a6fa5', '#fffaf0'],
+  ['#8a5a32', '#fffaf0'],
+  ['#2f5d50', '#fffaf0'],
+  ['#a34f49', '#fffaf0'],
+  ['#7a4e6e', '#fffaf0'],
+  ['#6d7c3a', '#fffaf0']
+];
+
+function eventKey(course, trackId) {
+  return trackId ? `${course.id}:${trackId}` : String(course.id || course.slug || '');
+}
+
+function eventTone(key, used) {
+  let hash = 0;
+  const text = String(key);
+  for (let i = 0; i < text.length; i += 1) hash = (hash * 33 + text.charCodeAt(i)) >>> 0;
+  let index = hash % EVENT_PALETTE.length;
+  let tries = 0;
+  while (used.has(index) && tries < EVENT_PALETTE.length) {
+    index = (index + 1) % EVENT_PALETTE.length;
+    tries += 1;
+  }
+  used.add(index);
+  const [bg, fg] = EVENT_PALETTE[index];
+  return `--event:${bg};--event-ink:${fg}`;
+}
+
+function eventStyleMap(sessions, courses) {
+  const used = new Set();
+  const map = {};
+  sessions.forEach((session) => {
+    const course = courses.find((item) => item.id === session.courseId);
+    if (!course) return;
+    const key = eventKey(course, session.trackId);
+    if (!map[key]) map[key] = eventTone(key, used);
+  });
+  return map;
 }
 
 function weeklySlots(course) {
@@ -647,6 +693,13 @@ function bindCourseCalendar(course) {
     const rangeEnd = course.endDate ? new Date(`${course.endDate}T23:59:59`) : null;
     const timeLabel = course.startTime && course.endTime ? `${course.startTime}–${course.endTime}` : '';
     const ymd = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const usedTones = new Set();
+    const tones = {};
+    const styleFor = (trackId) => {
+      const key = eventKey(course, trackId);
+      if (!tones[key]) tones[key] = eventTone(key, usedTones);
+      return tones[key];
+    };
     $('#courseCalMonth').textContent = `${year} 年 ${month + 1} 月`;
     let cells = '';
     for (let index = 0; index < 42; index += 1) {
@@ -656,8 +709,8 @@ function bindCourseCalendar(course) {
       const daySlots = inMonth ? slots.filter((slot) => slot.weekday === date.getDay()) : [];
       const onClass = inMonth && (daySlots.length ? true : dateSet.size ? dateSet.has(ymd(date)) : rangeStart && rangeEnd && course.weekdays?.includes(date.getDay()) && date >= rangeStart && date <= rangeEnd);
       const events = daySlots.length
-        ? daySlots.map((slot) => `<span class="calendar-event"><b>${slotLabel(course, slot)}</b><small>${clock(slot.start)}–${clock(slot.end)}${course.isFull ? ' · 已滿' : ''}</small></span>`).join('')
-        : (onClass ? `<span class="calendar-event"><b>${course.name}</b><small>${timeLabel}${course.isFull ? ' · 已滿' : ''}</small></span>` : '');
+        ? daySlots.map((slot) => `<span class="calendar-event" style="${styleFor(slot.trackId)}"><b>${slotLabel(course, slot)}</b><small>${clock(slot.start)}–${clock(slot.end)}${course.isFull ? ' · 已滿' : ''}</small></span>`).join('')
+        : (onClass ? `<span class="calendar-event" style="${styleFor()}"><b>${course.name}</b><small>${timeLabel}${course.isFull ? ' · 已滿' : ''}</small></span>` : '');
       cells += `<div class="calendar-day${inMonth ? '' : ' outside'}"><span class="day-number">${date.getDate()}</span>${events}</div>`;
     }
     $('#courseCalGrid').innerHTML = `<section class="calendar-panel ${course.audience}"><header><h3>${course.name}</h3><span>${year}.${String(month + 1).padStart(2, '0')}</span></header><div class="calendar-weekdays">${weekdays.map((day) => `<span>${day}</span>`).join('')}</div><div class="calendar-grid">${cells}</div></section>`;
@@ -719,6 +772,7 @@ async function renderTimetable(courses) {
       }
     });
     const matching = [...manual, ...recurring];
+    const tones = eventStyleMap(matching, courses);
     $('#calendarMonth').textContent = `${year} 年 ${month + 1} 月 · ${audience === 'adult' ? '成人班' : '兒童班'}`;
     $('#emptySchedule').hidden = matching.length > 0;
     let cells = '';
@@ -731,9 +785,10 @@ async function renderTimetable(courses) {
       });
       cells += `<div class="calendar-day${date.getMonth() !== month ? ' outside' : ''}"><span class="day-number">${date.getDate()}</span>${events.map((session) => {
         const course = courses.find((item) => item.id === session.courseId);
+        if (!course) return '';
         const time = timeRange(session.startsAt, session.endsAt || course.endTime);
         const href = session.trackId ? `course.html?id=${course.id}&track=${session.trackId}` : `course.html?id=${course.id}`;
-        return `<a class="calendar-event" href="${href}"><b>${session.title || course.shortName || course.name}</b><small>${time}${course.isFull ? ' · 已滿' : ''}</small></a>`;
+        return `<a class="calendar-event" href="${href}" style="${tones[eventKey(course, session.trackId)] || ''}"><b>${session.title || course.shortName || course.name}</b><small>${time}${course.isFull ? ' · 已滿' : ''}</small></a>`;
       }).join('')}</div>`;
     }
     $('#scheduleList').innerHTML = `<section class="calendar-panel ${audience}"><header><h3>${audience === 'adult' ? '成人班月曆' : '兒童班月曆'}</h3><span>${year}.${String(month + 1).padStart(2, '0')}</span></header><div class="calendar-weekdays">${weekdays.map((day) => `<span>${day}</span>`).join('')}</div><div class="calendar-grid">${cells}</div></section>`;

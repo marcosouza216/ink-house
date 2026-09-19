@@ -22,8 +22,9 @@ footer .brand-logo{width:92px;max-height:34px;filter:brightness(0) invert(1)}
 .page-hero,.about-hero,.home-slideshow .hero-copy{background:linear-gradient(135deg,var(--cream) 0%,var(--paper) 48%,var(--pink) 100%)!important}
 .page-content,.about.section,.about-page,.registration-layout,.full-schedule{background:linear-gradient(155deg,var(--cream) 0%,var(--paper) 55%,var(--pink) 100%)!important}
 .ticker,footer,.dashboard aside,.dark,.audience-switch button.active,.category-filter button.active,.filter-row button.active{background:var(--deep)!important;color:var(--cream)!important}
-.coral,.add-button,.login-card button,.modal-actions button:last-child,.calendar-event{background:var(--coral)!important;color:var(--paper)!important}
-.hero-stamp,.selected-course,.contact-section,.kids .calendar-event,.calendar-panel>header{background:var(--yellow)!important;color:var(--ink)!important}
+.coral,.add-button,.login-card button,.modal-actions button:last-child{background:var(--coral)!important;color:var(--paper)!important}
+.calendar-event{background:var(--event,var(--coral))!important;color:var(--event-ink,var(--paper))!important}
+.hero-stamp,.selected-course,.contact-section,.calendar-panel>header{background:var(--yellow)!important;color:var(--ink)!important}
 .course-card,.catalog-card,.registration-form,.signup form,.contact-grid article,.calendar-panel,.login-card,.panel,.stat,.nav-cta,.audience-switch button,.category-filter button,.month-switch button{background:var(--paper)!important}
 .course-art:not(.has-image),.blank-art,.blank-photo:not(.has-image){background:var(--green)!important;background-image:none!important;color:var(--ink)!important}
 .page-header{border-bottom-color:var(--ink)}

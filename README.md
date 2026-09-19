@@ -68,7 +68,7 @@ python3 -m http.server 8080
 
 ## 微信 QR Code
 
-把中心正式 QR 图片命名为 `wechat-qr.png`，放到 `assets/`。报名成功页面会自动显示；图片尚未提供时会显示占位提示。
+把中心正式 QR 圖片命名為 `wechat_qrcode.jpg`，放到 `assets/images/`。報名成功頁面會自動顯示；圖片尚未提供時會顯示佔位提示。
 
 ## 部署
 
