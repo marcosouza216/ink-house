@@ -221,7 +221,7 @@ function setCalendarAudience(next) {
   if (document.querySelector(`link[href^="${href}"]`)) return;
   const stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = `css/${href}?v=20260919-nosample`;
+  stylesheet.href = `css/${href}?v=20260919-notice`;
   document.head.appendChild(stylesheet);
 });
 
