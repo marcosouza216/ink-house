@@ -43,6 +43,7 @@
 .pay-note{color:var(--coral);font-weight:700}
 .fee-line{font-size:16px;font-weight:700;margin:6px 0 16px}
 .field-hint{display:block;color:var(--coral);font-size:12px;margin-top:6px;font-weight:500}
+.registration-form textarea{min-height:0;height:2.4em;resize:none;overflow:hidden}
 .notice-field{border:1px solid var(--line,#542a2230);padding:14px 16px;margin:18px 0}
 .notice-field ol{padding-left:22px;font-size:13px;font-weight:400;line-height:1.7}
 .home-courses h2{margin:0 0 10px;font-size:clamp(32px,4vw,52px)}

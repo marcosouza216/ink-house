@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>預約試堂｜賞心學堂</title>
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/pages.css?v=20260919-dates">
+  <link rel="stylesheet" href="css/pages.css?v=20260920-formfix">
 </head>
 <body>
   <header class="site-header page-header">
@@ -42,14 +42,14 @@
             <select name="selectedTime" id="kidsTime"></select>
           </label>
           <label>如無合適時間，請寫下合適的時間點
-            <textarea name="preferredTime" rows="2" placeholder="例如：星期六下午、平日晚上"></textarea>
+            <textarea name="preferredTime" rows="1" placeholder="例如：星期六下午、平日晚上"></textarea>
           </label>
           <fieldset class="notice-field">
             <legend>有沒有接觸過畫畫？</legend>
             <label class="consent"><input type="radio" name="drawingExperience" value="有接觸過"><span>有</span></label>
             <label class="consent"><input type="radio" name="drawingExperience" value="未接觸過"><span>沒有</span></label>
           </fieldset>
-          <label>電話<input name="phone" inputmode="tel" placeholder="+853 6275 4126"></label>
+          <label>電話<input name="phone" inputmode="tel"></label>
           <label>微信（請填寫正確微信，我們會用微信聯繫）
             <input name="wechat" autocomplete="off">
           </label>
@@ -57,7 +57,7 @@
         </div>
         <div id="adultFields" hidden>
           <label>姓名<input name="adultName" autocomplete="name"></label>
-          <label>電話<input name="adultPhone" inputmode="tel" placeholder="+853 6275 4126"></label>
+          <label>電話<input name="adultPhone" inputmode="tel"></label>
           <label>微信
             <input name="adultWechat" autocomplete="off">
             <small class="field-hint">請務必填寫正確的微信帳號，否則無法聯絡確認。</small>
@@ -66,7 +66,7 @@
             <select name="adultCourseId" id="adultCourse"></select>
           </label>
           <label>如無合適時間，請寫下合適的時間點
-            <textarea name="adultPreferredTime" rows="2" placeholder="例如：星期六下午、平日晚上"></textarea>
+            <textarea name="adultPreferredTime" rows="1" placeholder="例如：星期六下午、平日晚上"></textarea>
           </label>
           <p class="fee-line" id="adultFee"></p>
           <fieldset class="notice-field">
@@ -100,6 +100,6 @@
     </section>
   </main>
   <script src="js/data.js?v=20260920-trial"></script>
-  <script src="js/site.js?v=20260920-enroll"></script>
+  <script src="js/site.js?v=20260920-center"></script>
 </body>
 </html>

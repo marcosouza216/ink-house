@@ -222,7 +222,7 @@ function setCalendarAudience(next) {
   if (document.querySelector(`link[href^="${href}"]`)) return;
   const stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = `css/${href}?v=20260920-tracks2`;
+  stylesheet.href = `css/${href}?v=20260920-tracksm`;
   document.head.appendChild(stylesheet);
 });
 
@@ -841,7 +841,7 @@ function paymentHtml({ name, courseName, feeLabel, amount, extra }) {
     ${extra || ''}
     <p>Boc （賞****心）<br><b>183800375221287</b></p>
     <p>Mpay (Ink House)<br><b>62330533</b></p>
-    <p>麻煩付款後截圖發給我💕感謝</p>
+    <p>麻煩付款後截圖發給中心💕感謝</p>
     <p class="pay-note">付款備注請填：${name || '姓名'} 和 ${courseName || '報名班'}</p>
   </div>`;
 }
