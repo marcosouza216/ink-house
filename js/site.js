@@ -643,7 +643,6 @@ function renderDetail(courses) {
   const meta = `
       <div class="detail-meta">
         <div><span>課程對象</span><strong>${course.audience === 'kids' ? (course.age || '兒童') : '成人'}</strong></div>
-        ${course.audience === 'adult' ? `<div><span>上課老師</span><strong>${course.teacher || '待定'}</strong></div>` : ''}
         ${course.audience === 'adult' && course.tuitionMop != null ? `<div><span>學費</span><strong>${money(course.tuitionMop)}${course.holdEdu ? '（可用持教）' : ''}</strong></div>` : ''}
         <div><span>${course.feeLabel}${course.audience === 'adult' ? '（需自費）' : ''}</span><strong>${feeAmount(course)}</strong></div>
       </div>
