@@ -29,4 +29,15 @@ footer .brand-logo{width:92px;max-height:34px;filter:brightness(0) invert(1)}
 .course-art:not(.has-image),.blank-art,.blank-photo:not(.has-image){background:var(--green)!important;background-image:none!important;color:var(--ink)!important}
 .page-header{border-bottom-color:var(--ink)}
 
-@media(max-width:800px){.site-header .brand-logo{width:142px;max-height:48px}footer .brand-logo{width:80px;max-height:30px}.dashboard aside .brand-logo{width:135px}.site-header nav.open{background:linear-gradient(145deg,var(--cream),var(--paper),var(--pink))!important}}
+.home-courses .audience-switch{gap:14px;margin:8px 0 26px}
+.home-courses .audience-switch button{padding:14px 36px!important;font-size:16px!important;font-weight:700;min-width:138px;background:#fffaf0!important;color:var(--ink)!important}
+.home-courses .audience-switch button.active{background:#f0d5a8!important;color:var(--ink)!important}
+.calendar-audience{gap:12px}
+.calendar-audience button{padding:12px 28px!important;font-size:15px!important;font-weight:700;background:#fffaf0!important;color:var(--ink)!important}
+.calendar-audience button.active{background:#f0d5a8!important;color:var(--ink)!important}
+.track-switch{gap:12px;flex-wrap:wrap}
+.track-switch button{padding:12px 22px!important;font-size:15px!important;font-weight:700;background:#fffaf0!important;color:var(--ink)!important}
+.track-switch button.active{background:#f0d5a8!important;color:var(--ink)!important}
+.month-switch strong{font-size:16px;letter-spacing:.04em;min-width:8.5em;text-align:center}
+
+@media(max-width:800px){.site-header .brand-logo{width:142px;max-height:48px}footer .brand-logo{width:80px;max-height:30px}.dashboard aside .brand-logo{width:135px}.site-header nav.open{background:linear-gradient(145deg,var(--cream),var(--paper),var(--pink))!important}.home-courses .audience-switch button,.calendar-audience button,.track-switch button{padding:12px 16px!important;font-size:14px!important;flex:1;min-width:0}}

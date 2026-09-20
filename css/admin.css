@@ -37,14 +37,19 @@
 	.track-row td{background:#f7f6f1}
 	.track-name{padding-left:28px}
 	.track-name span{margin-right:8px;color:#8a918c}
-	.thumb-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-	.work-thumb{position:relative;display:inline-block}
-	.work-thumb img{width:72px;height:72px;object-fit:cover;display:block}
-	.work-thumb button{position:absolute;top:2px;right:2px;width:22px;height:22px;padding:0;margin:0;border:0;background:#0008;color:white;cursor:pointer;line-height:22px}
+	.thumb-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+	.work-thumb{position:relative;display:flex;flex-direction:column;gap:6px;width:96px}
+	.work-thumb img{width:96px;height:128px;object-fit:cover;display:block;border:1px solid var(--line);background:#fff}
+	.thumb-pos{margin:0!important;font-size:10px;font-weight:700}
+	.thumb-pos input{width:100%;margin-top:2px}
+	.thumb-tools{display:flex;gap:4px}
+	.thumb-tools button{flex:1;height:24px;padding:0;margin:0;border:0;background:#542a22;color:white;cursor:pointer;line-height:24px;font-size:12px}
+		.cover-pos{margin-top:8px}
+		.cover-pos .thumb-pos{display:block;margin:8px 0 0!important}
 	#kidsSchedule[hidden],#adultSchedule[hidden],#adultFeeFields[hidden],#kidsExtra[hidden]{display:none!important}
 	@media(max-width:640px){.slot-row{grid-template-columns:1fr 1fr}}
 
-.signup-filters{display:grid;grid-template-columns:160px minmax(180px,1fr) minmax(180px,1fr);gap:12px;margin:0 0 18px}
+.signup-filters{display:grid;grid-template-columns:140px minmax(160px,1fr) 140px minmax(160px,1fr);gap:12px;margin:0 0 18px}
 .signup-filters label{margin:0!important}
 .signup-filters input,.signup-filters select{width:100%;padding:10px;border:1px solid var(--line);margin-top:6px;background:white}
 @media(max-width:700px){.signup-filters{grid-template-columns:1fr}}

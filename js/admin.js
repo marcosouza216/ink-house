@@ -1,6 +1,6 @@
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 let view='overview',courseTab='kids',courses=[],signups=[],photos=[],photosError='';
-	let signupFilter={audience:'',courseId:'',q:''};
+	let signupFilter={audience:'',courseId:'',month:'',q:''};
 const DAYS=['日','一','二','三','四','五','六'];
 $$('[data-close-modal]').forEach(button=>button.onclick=()=>{const dialog=$('#modal');if(dialog.open)dialog.close('cancel')});
 {const style=document.createElement('link');style.rel='stylesheet';style.href='css/brand.css?v=20260919-admin';document.head.appendChild(style)}$$('.brand').forEach(brand=>brand.innerHTML='<img class="brand-logo" src="assets/images/logo-cropped.png" alt="賞心學堂 Ink House">');
@@ -60,12 +60,24 @@ window.setCourseTab=tab=>{courseTab=tab;renderCourses()};
 	  return ids.map(id=>courses.find(c=>c.id===id)).filter(Boolean);
 	}
 	function signupNames(s){return signupCourses(s).map(c=>c.className?`${c.name} ${c.className}`:c.name)}
+		function signupMonthKey(s){
+		  const day=new Date(s.created_at);
+		  if(Number.isNaN(day.getTime()))return '';
+		  return `${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}`;
+		}
+		function signupMonthChoices(){
+		  return [...new Set(signups.map(signupMonthKey).filter(Boolean))].sort().reverse().map(key=>{
+		    const [year,month]=key.split('-');
+		    return [key,`${year}年${Number(month)}月`];
+		  });
+		}
 	function filteredSignups(){
 	  const q=signupFilter.q.trim().toLowerCase();
 	  return signups.filter(s=>{
 	    const list=signupCourses(s);
 	    if(signupFilter.audience&&list.length&&!list.some(c=>c.audience===signupFilter.audience))return false;
 	    if(signupFilter.courseId&&s.course_id!==signupFilter.courseId&&!(s.course_ids||[]).includes(signupFilter.courseId))return false;
+    if(signupFilter.month&&signupMonthKey(s)!==signupFilter.month)return false;
 	    if(q){
 	      const hay=[s.student_name,s.phone,s.wechat,s.selected_time,s.preferred_time,...signupNames(s)].join(' ').toLowerCase();
 	      if(!hay.includes(q))return false;
@@ -80,20 +92,22 @@ window.setCourseTab=tab=>{courseTab=tab;renderCourses()};
 	    <div class="signup-filters">
 	      <label>班別<select id="signupAudience">${[['','全部'],['kids','兒童班'],['adult','成人班']].map(([value,label])=>`<option value="${value}" ${signupFilter.audience===value?'selected':''}>${label}</option>`).join('')}</select></label>
 	      <label>課程<select id="signupCourse"><option value="">全部課程</option>${courseChoices.map(c=>`<option value="${c.id}" ${signupFilter.courseId===c.id?'selected':''}>${esc(c.name)}${c.className?` ${esc(c.className)}`:''}</option>`).join('')}</select></label>
-	      <label>搜尋<input id="signupQuery" placeholder="姓名、電話、微信" value="${esc(signupFilter.q)}"></label>
+	      <label>月份<select id="signupMonth"><option value="">全部月份</option>${signupMonthChoices().map(([value,label])=>`<option value="${value}" ${signupFilter.month===value?'selected':''}>${label}</option>`).join('')}</select></label>
+		      <label>搜尋<input id="signupQuery" placeholder="姓名、電話、微信" value="${esc(signupFilter.q)}"></label>
 	    </div>
 	    ${signupTable(list)}</div>`;
 	  $('#signupAudience').onchange=()=>{signupFilter.audience=$('#signupAudience').value;signupFilter.courseId='';renderSignups()};
 	  $('#signupCourse').onchange=()=>{signupFilter.courseId=$('#signupCourse').value;renderSignups()};
+		  $('#signupMonth').onchange=()=>{signupFilter.month=$('#signupMonth').value;renderSignups()};
 	  const query=$('#signupQuery');
 	  query.oninput=()=>{signupFilter.q=query.value;const pos=query.selectionStart;renderSignups();const next=$('#signupQuery');if(next){next.focus();next.setSelectionRange(pos,pos)}};
 	}
 	window.downloadSignups=()=>{
 	  const list=filteredSignups();
 	  const xmlCell=value=>`<Cell><Data ss:Type="String">${String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</Data></Cell>`;
-	  const rows=[['姓名','電話','微信','課程','時間','費用','報名日期'],...list.map(s=>{
+	  const rows=[['姓名','年齡','電話','微信','課程','時間','其他時間／備註','費用','報名日期'],...list.map(s=>{
 	    const fee=s.fee_type?`${s.fee_type}${s.fee_mop!=null?` MOP ${s.fee_mop}`:''}`:'';
-	    return [s.student_name||'',s.phone||'',s.wechat||'',signupNames(s).join('、'),s.selected_time||s.preferred_time||'',fee,new Date(s.created_at).toLocaleString('zh-HK')];
+	    return [s.student_name||'',s.student_age||'',s.phone||'',s.wechat||'',signupNames(s).join('、'),s.selected_time||'',s.preferred_time&&s.preferred_time!==s.selected_time?s.preferred_time:'',fee,new Date(s.created_at).toLocaleString('zh-HK')];
 	  })];
 	  const xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>
 	<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="報名名單"><Table>${rows.map(row=>`<Row>${row.map(xmlCell).join('')}</Row>`).join('')}</Table></Worksheet></Workbook>`;
@@ -106,7 +120,7 @@ window.setCourseTab=tab=>{courseTab=tab;renderCourses()};
 	  setTimeout(()=>URL.revokeObjectURL(link.href),1000);
 	};
 
-	function signupTable(list){return list.length?`<table><thead><tr><th>姓名</th><th>聯絡</th><th>報名課程</th><th>時間／費用</th><th>報名日期</th><th>操作</th></tr></thead><tbody>${list.map(s=>`<tr><td><strong>${esc(s.student_name)}</strong></td><td>${esc(s.phone||'')}<br>微信：${esc(s.wechat||'—')}</td><td>${signupNames(s).map(esc).join('<br>')||'—'}</td><td>${esc(s.selected_time||s.preferred_time||'—')}${s.fee_type?`<br>${esc(s.fee_type)} ${s.fee_mop!=null?`MOP ${s.fee_mop}`:''}`:''}</td><td>${new Date(s.created_at).toLocaleString('zh-HK')}</td><td class="actions"><button class="delete" onclick="removeSignup('${s.id}')">刪除</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">沒有符合條件的報名資料</div>'}
+	function signupTable(list){return list.length?`<table><thead><tr><th>姓名</th><th>聯絡</th><th>報名課程</th><th>時間／備註</th><th>報名日期</th><th>操作</th></tr></thead><tbody>${list.map(s=>`<tr><td><strong>${esc(s.student_name)}</strong>${s.student_age?`<br>${esc(s.student_age)} 歲`:''}</td><td>${esc(s.phone||'')}<br>微信：${esc(s.wechat||'—')}</td><td>${signupNames(s).map(esc).join('<br>')||'—'}</td><td>${esc(s.selected_time||'—')}${s.preferred_time&&s.preferred_time!==s.selected_time?`<br>${esc(s.preferred_time)}`:''}${s.fee_type?`<br>${esc(s.fee_type)} ${s.fee_mop!=null?`MOP ${s.fee_mop}`:''}`:''}</td><td>${new Date(s.created_at).toLocaleString('zh-HK')}</td><td class="actions"><button class="delete" onclick="removeSignup('${s.id}')">刪除</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">沒有符合條件的報名資料</div>'}
 
 	function editor(title,html,save,wide=false){
   $('#modalTitle').textContent=title;
@@ -138,7 +152,11 @@ window.removeSignup=async(id)=>{if(!confirm('確定要刪除這筆報名嗎？')
 function expandCourseDates(c){if(c.sessionDates?.length)return c.sessionDates;if(!c.startDate||!c.endDate||!c.weekdays?.length)return [''];const dates=[];const cursor=new Date(`${c.startDate}T00:00:00`);const end=new Date(`${c.endDate}T00:00:00`);while(cursor<=end){if(c.weekdays.includes(cursor.getDay()))dates.push(`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`);cursor.setDate(cursor.getDate()+1)}return dates.length?dates:['']}
 function dateRowHtml(value=''){return `<div class="date-row"><label>上課日期<input type="date" name="sessionDates" value="${esc(value)}"></label><button type="button" class="remove-date" data-remove-date>移除</button></div>`}
 function slotRowHtml(slot={},prefix='slot'){return `<div class="slot-row"><label>星期<select name="${prefix}Weekday">${DAYS.map((day,index)=>`<option value="${index}" ${Number(slot.weekday)===index?'selected':''}>星期${day}</option>`).join('')}</select></label><label>開始<input type="time" name="${prefix}Start" value="${esc(slot.start||'')}"></label><label>結束<input type="time" name="${prefix}End" value="${esc(slot.end||'')}"></label><label>備註<input name="${prefix}Label" placeholder="選填，例如水彩班" value="${esc(slot.label||'')}"></label><button type="button" class="remove-date" data-remove-slot>移除</button></div>`}
-function thumbsHtml(urls,kind){return (urls||[]).map(url=>`<span class="work-thumb" data-kind="${kind}">${InkData.imgTag(url,'')}<button type="button" data-remove-thumb>×</button></span>`).join('')}
+function parseImagePos(url){const match=String(url||'').match(/#pos=(\d+),(\d+)/);return match?{x:Number(match[1]),y:Number(match[2])}:{x:50,y:50}}
+function cleanImageUrl(url){return String(url||'').replace(/#.*$/,'')}
+function withImagePos(url,x,y){const clean=cleanImageUrl(url);if(!clean)return '';x=Number(x);y=Number(y);return (x===50&&y===50)?clean:`${clean}#pos=${x},${y}`}
+function asWork(item){if(!item)return null;if(typeof item==='string')return {url:item,y:50};const url=item.url||'';return url?{url,y:Number(item.y??50)}:null}
+function thumbsHtml(urls,kind){return (urls||[]).map(asWork).filter(Boolean).map(work=>`<span class="work-thumb" data-kind="${kind}">${InkData.imgTag(work.url,'',`style="object-position:50% ${work.y}%"`)}<label class="thumb-pos">位置<input type="range" min="0" max="100" value="${work.y}" data-pos></label><span class="thumb-tools"><button type="button" data-move-thumb="-1" title="上移">↑</button><button type="button" data-move-thumb="1" title="下移">↓</button><button type="button" data-remove-thumb>×</button></span></span>`).join('')}
 function trackCardHtml(track={}){
   const slots=track.slots?.length?track.slots:[{}];
   return `<div class="track-card"><div class="track-card-head"><strong>專業分項</strong><button type="button" class="delete" data-remove-track>刪除分項</button></div><input type="hidden" name="trackId" value="${esc(track.id||'')}"><div class="admin-form-row"><label>短名稱<input name="trackShort" placeholder="素描" value="${esc(track.short||'')}"></label><label>完整名稱<input name="trackName" placeholder="素描班提升班" value="${esc(track.name||'')}"></label></div><label>上課模式<textarea name="trackMode">${esc(track.mode||'')}</textarea></label><label>學習內容<textarea name="trackLearn">${esc(track.learn||'')}</textarea></label><label>教練重點<textarea name="trackFocus">${esc(track.focus||'')}</textarea></label><fieldset class="date-field"><legend>此時段</legend><div class="track-slots">${slots.map(slot=>slotRowHtml(slot,'trackSlot')).join('')}</div><button type="button" class="add-date" data-add-track-slot>＋ 新增時段</button></fieldset><label>老師作品<input type="file" name="trackTeacherFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="teacher">${thumbsHtml(track.teacherWorks,'teacher')}</div></label><label>學生作品<input type="file" name="trackStudentFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="student">${thumbsHtml(track.studentWorks,'student')}</div></label></div>`;
@@ -158,7 +176,13 @@ function readSlots(root,prefix){
 }
 
 function remainingThumbs(scope,kind){
-  return [...scope.querySelectorAll(`.work-thumb[data-kind="${kind}"] img`)].filter(img=>scope.classList.contains('track-card')?true:!img.closest('.track-card')).map(img=>img.getAttribute('src')||img.dataset.cloud||'').filter(Boolean);
+  return [...scope.querySelectorAll(`.work-thumb[data-kind="${kind}"]`)].filter(thumb=>scope.classList.contains('track-card')?true:!thumb.closest('.track-card')).map(thumb=>{
+    const img=thumb.querySelector('img');
+    const url=img?.dataset.cloud||img?.getAttribute('src')||'';
+    if(!url)return null;
+    const y=Number(thumb.querySelector('[data-pos]')?.value);
+    return Number.isFinite(y)&&y!==50?{url,y}:url;
+  }).filter(Boolean);
 }
 
 function readTracks(){
@@ -192,6 +216,16 @@ function bindCourseForm(){
     $$('[data-remove-track]').forEach(button=>button.onclick=()=>button.closest('.track-card')?.remove());
     $$('[data-add-track-slot]').forEach(button=>button.onclick=()=>{button.parentElement.querySelector('.track-slots')?.insertAdjacentHTML('beforeend',slotRowHtml({},'trackSlot'));bindRemove()});
     $$('[data-remove-thumb]').forEach(button=>button.onclick=()=>button.closest('.work-thumb')?.remove());
+    $$('[data-move-thumb]').forEach(button=>button.onclick=()=>{
+      const thumb=button.closest('.work-thumb');
+      if(!thumb)return;
+      if(Number(button.dataset.moveThumb)<0)thumb.previousElementSibling?.before(thumb);
+      else thumb.nextElementSibling?.after(thumb);
+    });
+    $$('[data-pos]').forEach(input=>input.oninput=()=>{
+      const img=input.closest('.work-thumb')?.querySelector('img');
+      if(img)img.style.objectPosition=`50% ${input.value}%`;
+    });
   }
   bindRemove();
   bindImagePreview();
@@ -216,10 +250,10 @@ window.openCourse=(id,defaultAudience)=>{
     <label>一句標語（選填）<input name="label" placeholder="例如：輕鬆趣味引導教學" value="${esc(c.label||'')}"></label>
     <label>上課老師<input name="teacher" value="${esc(c.teacher||'老師待定')}"></label>
     <div class="admin-form-row">
-      <label>報名費／材料費 MOP<input type="number" name="priceMop" min="0" value="${c.priceMop??(c.audience==='kids'?100:'')}"></label>
+      <label>試堂費／材料費 MOP<input type="number" name="priceMop" min="0" value="${c.priceMop??(c.audience==='kids'?100:'')}"></label>
       <label>名額<input type="number" name="capacity" min="0" placeholder="滿額後顯示已滿" value="${c.capacity??''}"></label>
     </div>
-    <p class="slot-label">兒童班此欄為報名費。成人班此欄為材料費（需自費）。目前報名 ${c.enrolledCount||0} 人${c.capacity?`／${c.capacity}`:''}${c.isFull?'（已滿）':''}</p>
+    <p class="slot-label">兒童班此欄為試堂費。成人班此欄為材料費（需自費）。目前報名 ${c.enrolledCount||0} 人${c.capacity?`／${c.capacity}`:''}${c.isFull?'（已滿）':''}</p>
     <div id="adultFeeFields">
       <label>學費 MOP<input type="number" name="tuitionMop" min="0" placeholder="例如：1450" value="${c.tuitionMop??''}"></label>
       <label class="check-inline"><input type="checkbox" name="holdEdu" ${c.holdEdu?'checked':''}><span>學費可用持續進修資助（持教）</span></label>
@@ -237,8 +271,15 @@ window.openCourse=(id,defaultAudience)=>{
       <label>課程注重重點（一行一項）<textarea name="focusText">${esc((c.focus||[]).join('\n'))}</textarea></label>
       ${c.id&&c.audience!=='adult'?`<p class="slot-label">專業分項（素描、動漫、水彩等）請在課程列表分開編輯。目前 ${c.tracks?.length||0} 個分項。</p>`:''}
     </div>
-    <label>課程封面<input type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif"><small>JPG、PNG、WebP，會自動裁剪壓縮</small>${c.imageUrl?`<img src="${esc(c.imageUrl)}" alt="目前課程圖片" style="display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px">`:''}</label>
-    <label>老師作品（可多張）<input type="file" name="teacherWorkFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="teacher">${thumbsHtml(c.teacherWorks,'teacher')}</div></label>
+    <label>課程封面<input type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif"><small>可調整左右／上下位置</small>
+      <div class="cover-pos" id="coverPosWrap" ${c.imageUrl?'':'hidden'}>
+        <img id="coverPreview" src="${esc(cleanImageUrl(c.imageUrl))}" alt="目前課程圖片" style="display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px;object-position:${parseImagePos(c.imageUrl).x}% ${parseImagePos(c.imageUrl).y}%">
+        <label class="thumb-pos">左右<input type="range" name="imageX" min="0" max="100" value="${parseImagePos(c.imageUrl).x}"></label>
+        <label class="thumb-pos">上下<input type="range" name="imageY" min="0" max="100" value="${parseImagePos(c.imageUrl).y}"></label>
+      </div>
+    </label>
+    <label>老師作品（直向顯示，可調位置與順序）<input type="file" name="teacherWorkFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="teacher">${thumbsHtml(c.teacherWorks,'teacher')}</div></label>
+    <label>其他照片（顯示在課程資料下方）<input type="file" name="otherWorkFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="other">${thumbsHtml(c.otherWorks,'other')}</div></label>
     <label>學生作品（可多張）<input type="file" name="studentWorkFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="student">${thumbsHtml(c.studentWorks,'student')}</div></label>
   `,async data=>{
     const audience=data.audience;
@@ -248,17 +289,19 @@ window.openCourse=(id,defaultAudience)=>{
     if(audience==='kids'&&!weeklySlots.length&&!tracks.some(track=>track.slots?.length))throw new Error('請至少新增一個上課時段，或先新增專業分項');
     const form=$('#editorForm');
     const file=data.imageFile;
-    let imageUrl=c.imageUrl||'';
-    if(file instanceof File&&file.size>0)imageUrl=await InkData.uploadCourseImage(file,c.slug||'course');
+    let imageUrl=cleanImageUrl(c.imageUrl||'');
+    if(file instanceof File&&file.size>0)imageUrl=await InkData.uploadCourseImage(file,c.slug||'course',{crop:false});
+    imageUrl=withImagePos(imageUrl,form.imageX?.value,form.imageY?.value);
     const uploadMany=async(list,folder,existing)=>{
       const files=[...list||[]].filter(item=>item instanceof File&&item.size>0);
       const kept=(existing||[]).filter(Boolean);
       if(!files.length)return kept;
       const urls=[...kept];
-      for(const item of files)urls.push(await InkData.uploadCourseImage(item,folder));
+      for(const item of files)urls.push(await InkData.uploadCourseImage(item,folder,{crop:false}));
       return urls;
     };
     const teacherWorks=await uploadMany(form.teacherWorkFiles?.files,'teacher',remainingThumbs(form,'teacher'));
+    const otherWorks=await uploadMany(form.otherWorkFiles?.files,'other',remainingThumbs(form,'other'));
     const studentWorks=await uploadMany(form.studentWorkFiles?.files,'student',remainingThumbs(form,'student'));
     const lines=value=>(value||'').split(/\n+/).map(item=>item.replace(/^\d+\.\s*/,'').trim()).filter(Boolean);
     await InkData.saveCourse({
@@ -269,6 +312,7 @@ window.openCourse=(id,defaultAudience)=>{
       icon:c.icon,
       imageUrl,
       teacherWorks,
+      otherWorks,
       studentWorks,
       className:data.className,
       age:data.age,
@@ -315,7 +359,7 @@ window.openTrack=(courseId,trackId)=>{
       const kept=(existing||[]).filter(Boolean);
       if(!files.length)return kept;
       const urls=[...kept];
-      for(const item of files)urls.push(await InkData.uploadCourseImage(item,folder));
+      for(const item of files)urls.push(await InkData.uploadCourseImage(item,folder,{crop:false}));
       return urls;
     };
     const short=(data.short||'').trim();
@@ -353,7 +397,28 @@ window.removeTrack=async(courseId,trackId)=>{
 
 function slideshowPhotos(){return photos.filter(p=>p.placement==='slideshow').sort((a,b)=>a.sortOrder-b.sortOrder)}
 function photoCard(photo,actions,empty){return `<div class="photo-card">${photo?.imageUrl?InkData.imgTag(photo.imageUrl,''):`<div class="photo-empty">${empty}</div>`}<div class="actions">${actions}</div></div>`}
-function bindImagePreview(){const fileInput=$('[name=imageFile]');if(!fileInput)return;fileInput.onchange=()=>{const old=$('#newImagePreview');old?.remove();if(fileInput.files[0]){const image=document.createElement('img');image.id='newImagePreview';image.src=URL.createObjectURL(fileInput.files[0]);image.style='display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px';fileInput.parentElement.appendChild(image)}}}
+function bindImagePreview(){
+  const fileInput=$('[name=imageFile]');
+  const preview=$('#coverPreview');
+  const wrap=$('#coverPosWrap');
+  const syncPos=()=>{
+    if(!preview)return;
+    const x=$('[name=imageX]')?.value||50;
+    const y=$('[name=imageY]')?.value||50;
+    preview.style.objectPosition=`${x}% ${y}%`;
+  };
+  $$('[name=imageX],[name=imageY]').forEach(input=>input.oninput=syncPos);
+  if(!fileInput)return;
+  fileInput.onchange=()=>{
+    if(!fileInput.files[0])return;
+    const target=preview||Object.assign(document.createElement('img'),{id:'coverPreview'});
+    target.src=URL.createObjectURL(fileInput.files[0]);
+    target.style='display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px';
+    if(!preview)fileInput.parentElement.appendChild(target);
+    if(wrap)wrap.hidden=false;
+    syncPos();
+  };
+}
 function renderPhotos(){
   if(photosError){$('#content').innerHTML=`<div class="panel"><p>無法載入主頁照片。請先在 Supabase SQL Editor 執行 <code>supabase/site-photos.sql</code>。</p><p class="empty">${esc(photosError)}</p></div>`;return}
   const slides=slideshowPhotos(),large=photos.find(p=>p.placement==='about-large'),small=photos.find(p=>p.placement==='about-small');

@@ -21,30 +21,34 @@
   </header>
   <main>
     <section class="page-hero">
-      <p class="kicker">TRIAL BOOKING</p>
-      <h1>預約試堂</h1>
-      <p>兒童班與成人班表格不同，請先選擇班別。</p>
+      <p class="kicker" id="signupKicker">TRIAL BOOKING</p>
+      <h1 id="signupTitle">預約試堂</h1>
     </section>
     <section class="page-content registration-layout">
-      <div>
+      <div id="signupIntro">
         <p class="kicker">YOUR SELECTION</p>
-        <h2 class="registration-heading">選擇班別，<br>開始預約試堂。</h2>
-        <div class="audience-switch" id="signupAudience">
-          <button type="button" data-signup-audience="kids">兒童班</button>
-          <button type="button" data-signup-audience="adult">成人班</button>
-        </div>
-        <div class="selected-course" id="selectedCourse">請先選擇班別與課程</div>
+        <h2 class="registration-heading" id="signupHeading">開始預約試堂。</h2>
+        <div class="selected-course" id="selectedCourse">請選擇課程</div>
       </div>
       <form class="registration-form" id="registrationForm">
         <input type="hidden" name="audience" id="signupMode" value="">
         <div id="kidsFields" hidden>
-          <label>家長姓名<input name="name" autocomplete="name"></label>
+          <label>學生姓名<input name="name" autocomplete="name"></label>
+          <label>年齡<input name="age" inputmode="numeric" placeholder="例如：8"></label>
           <label>報名課程
             <select name="courseId" id="kidsCourse"></select>
           </label>
           <label>選擇時間
             <select name="selectedTime" id="kidsTime"></select>
           </label>
+          <label>如無合適時間，請寫下合適的時間點
+            <textarea name="preferredTime" rows="2" placeholder="例如：星期六下午、平日晚上"></textarea>
+          </label>
+          <fieldset class="notice-field">
+            <legend>有沒有接觸過畫畫？</legend>
+            <label class="consent"><input type="radio" name="drawingExperience" value="有接觸過"><span>有</span></label>
+            <label class="consent"><input type="radio" name="drawingExperience" value="未接觸過"><span>沒有</span></label>
+          </fieldset>
           <label>電話<input name="phone" inputmode="tel" placeholder="+853 6275 4126"></label>
           <label>微信（請填寫正確微信，我們會用微信聯繫）
             <input name="wechat" autocomplete="off">
@@ -61,10 +65,14 @@
           <label>選擇課堂
             <select name="adultCourseId" id="adultCourse"></select>
           </label>
+          <label>如無合適時間，請寫下合適的時間點
+            <textarea name="adultPreferredTime" rows="2" placeholder="例如：星期六下午、平日晚上"></textarea>
+          </label>
           <p class="fee-line" id="adultFee"></p>
           <fieldset class="notice-field">
             <legend>報讀須知</legend>
             <ol>
+              <li>請先繳交材料費作為留位費；若成功開班，我們會再通知。</li>
               <li>課程費用一經確認繳交，恕不接受退課、退款。</li>
               <li>學員個人因素缺席，不設退款、補課、調課；或會影響後續課程進展。</li>
               <li>使用持續進修資助者，出席率需達70%，否則將扣留保證金，病假等不設例外。</li>
@@ -74,14 +82,14 @@
             <label class="consent"><input type="checkbox" name="adultNotice"><span>我已閱讀並同意以上報讀須知。</span></label>
           </fieldset>
         </div>
-        <button class="button dark" type="submit">送出預約 →</button>
+        <button class="button dark" type="submit" id="signupSubmit">立即預約 →</button>
         <p id="formStatus" role="status"></p>
       </form>
       <section class="registration-success" id="registrationSuccess" hidden>
-        <p class="kicker">BOOKING RECEIVED</p>
-        <h2>預約成功！</h2>
+        <p class="kicker" id="successKicker">BOOKING RECEIVED</p>
+        <h2 id="successTitle">預約成功！</h2>
         <div id="paymentDetails"></div>
-        <p>請掃描下方 QR Code 加入中心微信，並把付款截圖發給我們。</p>
+        <p id="successLead">我們有專人聯繫你，或者你亦可加下方微信，並把付款截圖發給我們。</p>
         <div class="wechat-qr-wrap">
           <img src="assets/images/wechat_qrcode.jpg" alt="賞心學堂中心微信 QR Code" id="wechatQr">
           <div class="qr-placeholder" id="qrPlaceholder">中心微信 QR Code</div>
@@ -91,7 +99,7 @@
       </section>
     </section>
   </main>
-  <script src="js/data.js?v=20260919-sync"></script>
-  <script src="js/site.js?v=20260919-calcolor"></script>
+  <script src="js/data.js?v=20260920-trial"></script>
+  <script src="js/site.js?v=20260920-enroll"></script>
 </body>
 </html>

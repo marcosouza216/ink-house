@@ -106,12 +106,13 @@ body>.site-header:not(.page-header)+main{position:relative}
 .course-check:has(input:checked){border:2px solid var(--coral);padding:11px;background:var(--cream)}
 .course-check input{flex:0 0 auto;width:17px;height:17px;margin:3px 0 0;accent-color:var(--coral)}
 .course-check span{display:block}.course-check b{display:block;font-size:13px}.course-check small{display:block;margin-top:2px;font-size:9px;font-weight:400}
-.registration-success{grid-column:2;padding:38px;border:2px solid var(--ink);background:var(--paper);box-shadow:8px 8px 0 var(--ink);text-align:center}
+.registration-success{grid-column:1/-1;max-width:520px;margin:0 auto;padding:38px;border:2px solid var(--ink);background:var(--paper);box-shadow:8px 8px 0 var(--ink);text-align:center}
+.registration-layout.success-only{grid-template-columns:1fr}
 .registration-success h2{font-size:38px;margin:5px 0 12px}.registration-success>p{max-width:520px;margin:0 auto 24px}
-.wechat-qr-wrap{width:230px;height:230px;margin:20px auto;display:grid;place-items:center;border:2px solid var(--ink);background:white;padding:12px}
-.wechat-qr-wrap img{display:block;width:100%;height:100%;object-fit:contain}
-.qr-placeholder{display:grid;width:100%;height:100%;place-items:center;background:var(--cream);font-size:12px;font-weight:700}
+.wechat-qr-wrap{width:min(260px,78%);height:auto;margin:20px auto;display:block;border:2px solid var(--ink);background:white;padding:0;overflow:hidden}
+.wechat-qr-wrap img{display:block;width:100%;height:auto}
+.qr-placeholder{display:grid;width:100%;min-height:180px;place-items:center;background:var(--cream);font-size:12px;font-weight:700}
 .wechat-qr-wrap img[hidden],.qr-placeholder[hidden]{display:none!important}
 .registration-success .button{width:max-content;margin:28px auto 0}
 @media(max-width:850px){.registration-success{grid-column:1}.registration-heading{font-size:34px}}
-@media(max-width:560px){.course-checkboxes{max-height:280px}.wechat-qr-wrap{width:210px;height:210px}.registration-success{padding:27px 20px}}
+@media(max-width:560px){.course-checkboxes{max-height:280px}.wechat-qr-wrap{width:min(240px,86%)}.registration-success{padding:27px 20px}}

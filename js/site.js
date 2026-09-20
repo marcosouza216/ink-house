@@ -105,7 +105,7 @@ function hydrateCourse(course) {
 }
 function applyKidsFee(course) {
   if (course.audience !== 'kids' || Number(course.priceMop) !== 500) return course;
-  return { ...course, priceMop: 100, price: 'MOP 100', feeText: '報名費 MOP 100' };
+  return { ...course, priceMop: 100, price: 'MOP 100', feeText: '試堂費 MOP 100' };
 }
 
 const HIDDEN_COURSE_SLUGS = new Set(['adult-watercolor', 'adult-sketch', 'adult-acrylic', '694cfd5d-a10d-42de-811d-008d2d28f6f8']);
@@ -144,6 +144,7 @@ function makeAdultCourse(row) {
     imageUrl: row.imageUrl || '',
     teacherWorks: row.teacherWorks || [],
     studentWorks: row.studentWorks || [],
+    otherWorks: row.otherWorks || [],
     learn: [],
     focus: [],
     tracks: [],
@@ -221,7 +222,7 @@ function setCalendarAudience(next) {
   if (document.querySelector(`link[href^="${href}"]`)) return;
   const stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = `css/${href}?v=20260919-calcolor`;
+  stylesheet.href = `css/${href}?v=20260920-tracks2`;
   document.head.appendChild(stylesheet);
 });
 
@@ -346,18 +347,18 @@ function timeRange(start, end) {
 }
 
 const EVENT_PALETTE = [
-  ['#aa513c', '#fffaf0'],
-  ['#3d6b7a', '#fffaf0'],
-  ['#6b5b95', '#fffaf0'],
-  ['#5d7a4a', '#fffaf0'],
-  ['#c47a3a', '#fffaf0'],
-  ['#9b4d6c', '#fffaf0'],
-  ['#4a6fa5', '#fffaf0'],
-  ['#8a5a32', '#fffaf0'],
-  ['#2f5d50', '#fffaf0'],
-  ['#a34f49', '#fffaf0'],
-  ['#7a4e6e', '#fffaf0'],
-  ['#6d7c3a', '#fffaf0']
+  ['#F94144', '#fffaf0'],
+  ['#2D9CDB', '#fffaf0'],
+  ['#9B5DE5', '#fffaf0'],
+  ['#2A9D8F', '#fffaf0'],
+  ['#F3722C', '#fffaf0'],
+  ['#F15BB5', '#fffaf0'],
+  ['#4361EE', '#fffaf0'],
+  ['#E63946', '#fffaf0'],
+  ['#00B4D8', '#fffaf0'],
+  ['#FB8500', '#fffaf0'],
+  ['#06D6A0', '#14332c'],
+  ['#FFD166', '#3a2a10']
 ];
 
 function eventKey(course, trackId) {
@@ -482,7 +483,15 @@ function courseCover(course) {
 }
 
 function courseWorks(course, kind) {
-  return (kind === 'teacher' ? course.teacherWorks : course.studentWorks) || [];
+  if (kind === 'teacher') return course.teacherWorks || [];
+  if (kind === 'other') return course.otherWorks || [];
+  return course.studentWorks || [];
+}
+
+function otherPhotosHtml(course) {
+  const works = courseWorks(course, 'other');
+  if (!works.map(asWork).filter(Boolean).length) return '';
+  return workSlider('其他照片', works, '');
 }
 
 function courseCard(course) {
@@ -527,13 +536,30 @@ function renderCatalog(courses) {
   render();
 }
 
+function asWork(item) {
+  if (!item) return null;
+  if (typeof item === 'string') return { url: item, y: 50 };
+  const url = item.url || item.src || '';
+  return url ? { url, y: Number(item.y ?? 50) } : null;
+}
+
+function workStack(items) {
+  const works = (items || []).map(asWork).filter(Boolean);
+  if (!works.length) return '';
+  const slides = works.map((work) => `<div class="work-slide">${InkData.imgTag(work.url, '', `draggable="false" style="object-position:50% ${work.y}%"`)}</div>`).join('');
+  const many = works.length > 1;
+  const dots = many ? `<div class="work-dots">${works.map((_, index) => `<button type="button" data-dot="${index}" aria-label="第 ${index + 1} 張"></button>`).join('')}</div>` : '';
+  const controls = many ? `<button type="button" class="work-arrow previous" data-prev aria-label="上一張">‹</button><button type="button" class="work-arrow next" data-next aria-label="下一張">›</button>` : '';
+  return `<section class="work-block work-vertical"><div class="work-slider" data-work-slider><div class="work-track">${slides}</div>${controls}${dots}</div></section>`;
+}
+
 function workSlider(title, urls, emptyText) {
-  const photos = (urls || []).filter(Boolean);
-  const slides = photos.length
-    ? photos.map((url) => `<div class="work-slide">${InkData.imgTag(url, title, 'draggable="false"')}</div>`).join('')
+  const works = (urls || []).map(asWork).filter(Boolean);
+  const slides = works.length
+    ? works.map((work) => `<div class="work-slide">${InkData.imgTag(work.url, title, 'draggable="false"')}</div>`).join('')
     : `<div class="work-slide work-empty"><span>${emptyText}</span></div>`;
-  const many = photos.length > 1;
-  const dots = many ? `<div class="work-dots">${photos.map((_, index) => `<button type="button" data-dot="${index}" aria-label="第 ${index + 1} 張"></button>`).join('')}</div>` : '';
+  const many = works.length > 1;
+  const dots = many ? `<div class="work-dots">${works.map((_, index) => `<button type="button" data-dot="${index}" aria-label="第 ${index + 1} 張"></button>`).join('')}</div>` : '';
   const controls = many ? `<button type="button" class="work-arrow previous" data-prev aria-label="上一張">‹</button><button type="button" class="work-arrow next" data-next aria-label="下一張">›</button>` : '';
   return `<section class="work-block"><h3>${title}</h3><div class="work-slider" data-work-slider><div class="work-track">${slides}</div>${controls}${dots}</div></section>`;
 }
@@ -559,6 +585,15 @@ function bindWorkSliders() {
   });
 }
 
+function trackSwitchLabel(track) {
+  if (track.id === 'acrylic' || track.id === 'large-acrylic') return '丙烯/大型丙烯';
+  return track.short;
+}
+
+function trackSwitchTracks(tracks) {
+  return (tracks || []).filter((track) => track.id !== 'large-acrylic');
+}
+
 function trackPanelHtml(track) {
   const time = (track.slots || []).map((slot) => `星期${weekdayNames[slot.weekday]} ${clock(slot.start)}–${clock(slot.end)}`).join('、');
   return `
@@ -576,10 +611,10 @@ function bindTrackSwitch(course) {
   if (!buttons.length || !panel) return;
   const show = (id) => {
     const track = course.tracks.find((item) => item.id === id) || course.tracks[0];
-    buttons.forEach((button) => button.classList.toggle('active', button.dataset.track === track.id));
+    buttons.forEach((button) => button.classList.toggle('active', button.dataset.track === track.id || (button.dataset.track === 'acrylic' && track.id === 'large-acrylic')));
     const teacher = $('#teacherWorksTop');
     const student = $('#studentWorksBottom');
-    if (teacher) teacher.innerHTML = workSlider(`${track.short} · 老師作品`, track.teacherWorks, '老師作品即將更新');
+    if (teacher) teacher.innerHTML = workStack(track.teacherWorks);
     panel.innerHTML = trackPanelHtml(track);
     if (student) student.innerHTML = workSlider(`${track.short} · 學生作品`, track.studentWorks, '學生作品即將更新');
     bindWorkSliders();
@@ -599,25 +634,22 @@ function renderDetail(courses) {
   const full = course.isFull ? '<span class="full-badge">已滿</span>' : '';
   const cta = course.isFull
     ? '<span class="button dark" style="opacity:.55;pointer-events:none">已滿</span>'
-    : `<a class="button coral" href="signup.html?audience=${course.audience}&course=${course.id}">預約試堂 →</a>`;
+    : `<a class="button coral" href="signup.html?audience=${course.audience}&course=${course.id}">${course.audience === 'adult' ? '立即報名' : '預約試堂'} →</a>`;
   const meta = `
       <div class="detail-meta">
-        <div><span>課程對象</span><strong>${course.audience === 'kids' ? '兒童' : '成人'}</strong></div>
-        <div><span>上課老師</span><strong>${course.teacher || '待定'}</strong></div>
-        ${course.className ? `<div><span>班級</span><strong>${course.className}</strong></div>` : ''}
+        <div><span>課程對象</span><strong>${course.audience === 'kids' ? (course.age || '兒童') : '成人'}</strong></div>
+        ${course.audience === 'adult' ? `<div><span>上課老師</span><strong>${course.teacher || '待定'}</strong></div>` : ''}
         ${course.audience === 'adult' && course.tuitionMop != null ? `<div><span>學費</span><strong>${money(course.tuitionMop)}${course.holdEdu ? '（可用持教）' : ''}</strong></div>` : ''}
         <div><span>${course.feeLabel}${course.audience === 'adult' ? '（需自費）' : ''}</span><strong>${feeAmount(course)}</strong></div>
-        <div><span>報名情況</span><strong>${course.isFull ? '已滿' : (course.capacity ? `${course.enrolledCount}/${course.capacity}` : '可預約')}</strong></div>
       </div>
       ${weeklySlots(course).length ? weeklyTimetableHtml(course) : `<h3>上課時間</h3><p>${courseScheduleText(course)}</p>`}`;
   const calendar = `
     <section class="course-cal">
       <h3>本課月曆</h3>
       <div class="calendar-toolbar">
-        <h2 id="courseCalMonth">本月</h2>
         <div class="month-switch">
           <button type="button" id="courseCalPrev" aria-label="上個月">←</button>
-          <strong>切換月份</strong>
+          <strong id="courseCalMonth">本月</strong>
           <button type="button" id="courseCalNext" aria-label="下個月">→</button>
         </div>
       </div>
@@ -628,7 +660,7 @@ function renderDetail(courses) {
   if (course.tracks?.length) {
     const current = course.tracks.find((track) => track.id === params.get('track')) || course.tracks[0];
     $('#courseDetail').innerHTML = `
-    <div id="teacherWorksTop">${workSlider(`${current.short} · 老師作品`, current.teacherWorks, '老師作品即將更新')}</div>
+    <div id="teacherWorksTop">${workStack(current.teacherWorks)}</div>
     <div class="detail-info">
       ${full}
       <span class="audience-badge">${course.audience === 'kids' ? '兒童班' : '成人班'}</span>
@@ -637,11 +669,12 @@ function renderDetail(courses) {
       ${course.level ? `<p class="course-tagline">${course.level}</p>` : ''}
       <p class="course-intro">${course.desc}</p>
       <div class="audience-switch track-switch">
-        ${course.tracks.map((track) => `<button type="button" data-track="${track.id}" class="${track.id === current.id ? 'active' : ''}">${track.short}</button>`).join('')}
+        ${trackSwitchTracks(course.tracks).map((track) => `<button type="button" data-track="${track.id}" class="${track.id === current.id || (track.id === 'acrylic' && current.id === 'large-acrylic') ? 'active' : ''}">${trackSwitchLabel(track)}</button>`).join('')}
       </div>
       <div id="trackPanel">${trackPanelHtml(current)}</div>
       ${meta}
     </div>
+    ${otherPhotosHtml(course)}
     <div id="studentWorksBottom">${workSlider(`${current.short} · 學生作品`, current.studentWorks, '學生作品即將更新')}</div>
     ${calendar}`;
     bindTrackSwitch(course);
@@ -651,11 +684,11 @@ function renderDetail(courses) {
   }
 
   $('#courseDetail').innerHTML = `
-    ${workSlider('老師作品', courseWorks(course, 'teacher'), '老師作品即將更新')}
+    ${workStack(courseWorks(course, 'teacher'))}
     <div class="detail-info">
       ${full}
       <span class="audience-badge">${course.audience === 'kids' ? '兒童班' : '成人班'}</span>
-      <p class="kicker">${course.category}${course.className ? ` · ${course.className}` : ''}${course.age ? ` · ${course.age}` : ''}</p>
+      <p class="kicker">${course.category}${course.age ? ` · ${course.age}` : ''}</p>
       <h1>${course.name}</h1>
       ${course.level ? `<p class="course-tagline">${course.level}</p>` : ''}
       ${course.descTitle ? `<h3>${course.descTitle}</h3>` : ''}
@@ -666,6 +699,7 @@ function renderDetail(courses) {
       ${course.label ? `<p class="course-motto">${course.label}</p>` : ''}
       ${meta}
     </div>
+    ${otherPhotosHtml(course)}
     ${workSlider('學生作品', courseWorks(course, 'student'), '學生作品即將更新')}
     ${calendar}`;
   bindWorkSliders();
@@ -773,7 +807,7 @@ async function renderTimetable(courses) {
     });
     const matching = [...manual, ...recurring];
     const tones = eventStyleMap(matching, courses);
-    $('#calendarMonth').textContent = `${year} 年 ${month + 1} 月 · ${audience === 'adult' ? '成人班' : '兒童班'}`;
+    $('#calendarMonth').textContent = `${year} 年 ${month + 1} 月`;
     $('#emptySchedule').hidden = matching.length > 0;
     let cells = '';
     for (let index = 0; index < 42; index += 1) {
@@ -814,26 +848,44 @@ function paymentHtml({ name, courseName, feeLabel, amount, extra }) {
 
 function setupRegistration(courses) {
   const params = new URLSearchParams(location.search);
-  let mode = params.get('audience');
-  if (!['kids', 'adult'].includes(mode)) mode = '';
   const requested = params.get('course') || '';
+  const seed = courses.find((item) => item.id === requested);
+  let mode = params.get('audience');
+  if (!['kids', 'adult'].includes(mode)) mode = seed?.audience === 'adult' ? 'adult' : 'kids';
   const kids = kidsCourses(courses).filter((course) => !course.isFull);
   const adults = courses.filter((course) => course.audience === 'adult' && !course.isFull);
   const kidsSelect = $('#kidsCourse');
   const adultSelect = $('#adultCourse');
   if (kidsSelect) kidsSelect.innerHTML = kids.map((course) => `<option value="${course.id}" ${course.id === requested ? 'selected' : ''}>${course.name}</option>`).join('');
-  if (adultSelect) adultSelect.innerHTML = adults.map((course) => `<option value="${course.id}" ${course.id === requested ? 'selected' : ''}>${course.name}${course.className ? ` ${course.className}` : ''}</option>`).join('');
+  if (adultSelect) {
+    const related = seed?.audience === 'adult' ? adults.filter((item) => item.name === seed.name) : adults;
+    const compact = seed?.audience === 'adult';
+    const list = related.length ? related : adults;
+    adultSelect.innerHTML = list.map((course) => {
+      const klass = course.className || course.name;
+      const when = [formatSessionDates(course.sessionDates || []), course.startTime && course.endTime ? `${clock(course.startTime)}–${clock(course.endTime)}` : ''].filter(Boolean).join(' ');
+      const label = compact ? (when ? `${klass}（${when}）` : klass) : `${course.name}${course.className ? ` ${course.className}` : ''}${when ? `（${when}）` : ''}`;
+      return `<option value="${course.id}" ${course.id === requested ? 'selected' : ''}>${label}</option>`;
+    }).join('');
+  }
 
   const setMode = (next) => {
     mode = next;
     $('#signupMode').value = next;
     $('#kidsFields').hidden = next !== 'kids';
     $('#adultFields').hidden = next !== 'adult';
+    const adult = next === 'adult';
+    document.title = adult ? '立即報名｜賞心學堂' : '預約試堂｜賞心學堂';
+    if ($('#signupKicker')) $('#signupKicker').textContent = adult ? 'ENROLL NOW' : 'TRIAL BOOKING';
+    if ($('#signupTitle')) $('#signupTitle').textContent = adult ? '立即報名' : '預約試堂';
+    if ($('#signupHeading')) $('#signupHeading').textContent = adult ? '開始報名。' : '開始預約試堂。';
+    if ($('#signupSubmit')) $('#signupSubmit').textContent = adult ? '立即報名 →' : '立即預約 →';
     $$('#signupAudience [data-signup-audience]').forEach((button) => button.classList.toggle('active', button.dataset.signupAudience === next));
-    ['name', 'phone', 'wechat', 'courseId', 'selectedTime'].forEach((field) => {
+    ['name', 'age', 'phone', 'wechat', 'courseId', 'selectedTime'].forEach((field) => {
       const input = $(`#kidsFields [name="${field}"]`);
       if (input) input.required = next === 'kids';
     });
+    $$('#kidsFields [name="drawingExperience"]').forEach((input) => { input.required = next === 'kids'; });
     ['adultName', 'adultPhone', 'adultWechat', 'adultCourseId', 'adultNotice'].forEach((field) => {
       const input = $(`#adultFields [name="${field}"]`);
       if (input) input.required = next === 'adult';
@@ -855,18 +907,13 @@ function setupRegistration(courses) {
       $('#kidsFee').innerHTML = `${course.feeLabel}：${feeAmount(course)}`;
     }
     if (mode === 'adult' && course) $('#adultFee').innerHTML = feeText(course);
-    $('#selectedCourse').innerHTML = course ? `<span>${course.audience === 'kids' ? '兒童班' : '成人班'}${course.className ? ` · ${course.className}` : ''}</span><h3>${course.name}</h3><p>${courseScheduleText(course)}</p><p>${feeText(course)}</p>` : '請先選擇班別與課程';
+    $('#selectedCourse').innerHTML = course ? `<span>${course.audience === 'kids' ? '兒童班' : '成人班'}${course.className ? ` · ${course.className}` : ''}</span><h3>${course.name}</h3><p>${courseScheduleText(course)}</p><p>${feeText(course)}</p>` : '請選擇課程';
   };
 
   $$('#signupAudience [data-signup-audience]').forEach((button) => button.addEventListener('click', () => setMode(button.dataset.signupAudience)));
   kidsSelect?.addEventListener('change', update);
   adultSelect?.addEventListener('change', update);
-  if (mode) setMode(mode);
-  else if (requested) {
-    const course = courses.find((item) => item.id === requested);
-    setMode(course?.audience === 'kids' ? 'kids' : course?.audience === 'adult' ? 'adult' : 'kids');
-  }
-  update();
+  setMode(mode);
 
   const qr = $('#wechatQr');
   if (qr) {
@@ -877,7 +924,7 @@ function setupRegistration(courses) {
 
   $('#registrationForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!mode) { $('#formStatus').textContent = '請先選擇兒童班或成人班。'; return; }
+    if (!mode) { $('#formStatus').textContent = '請選擇課程。'; return; }
     const course = selectedCourse();
     if (!course) { $('#formStatus').textContent = '請選擇課程。'; return; }
     if (course.isFull) { $('#formStatus').textContent = '此課程已滿。'; return; }
@@ -885,21 +932,34 @@ function setupRegistration(courses) {
     const name = mode === 'kids' ? form.name.value.trim() : form.adultName.value.trim();
     const phone = mode === 'kids' ? form.phone.value.trim() : form.adultPhone.value.trim();
     const wechat = mode === 'kids' ? form.wechat.value.trim() : form.adultWechat.value.trim();
+    const age = mode === 'kids' ? form.age.value.trim() : '';
+    const extraTime = (mode === 'kids' ? form.preferredTime.value : form.adultPreferredTime.value).trim();
+    const drawing = mode === 'kids' ? (form.drawingExperience.value || '') : '';
     if (!wechat) { $('#formStatus').textContent = '請填寫正確的微信帳號。'; return; }
+    if (mode === 'kids' && !age) { $('#formStatus').textContent = '請填寫學生年齡。'; return; }
+    if (mode === 'kids' && !drawing) { $('#formStatus').textContent = '請選擇有沒有接觸過畫畫。'; return; }
+    const selectedTime = mode === 'kids' ? form.selectedTime.value : courseScheduleText(course);
+    const preferredParts = [];
+    if (extraTime) preferredParts.push(`其他合適時間：${extraTime}`);
+    if (drawing) preferredParts.push(`畫畫經驗：${drawing}`);
     const button = event.submitter;
     button.disabled = true;
     try {
       await InkData.submitRegistration({
         name,
+        age,
         phone,
         wechat,
         courseIds: [course.id],
-        selectedTime: mode === 'kids' ? form.selectedTime.value : courseScheduleText(course),
+        selectedTime,
+        preferredTime: preferredParts.join('；') || selectedTime,
         feeType: course.feeLabel,
         feeMop: course.priceMop
       });
       form.hidden = true;
+      $('#signupIntro') && ($('#signupIntro').hidden = true);
       $('#selectedCourse').hidden = true;
+      $('.registration-layout')?.classList.add('success-only');
       $('#paymentDetails').innerHTML = paymentHtml({
         name,
         courseName: course.className ? `${course.name} ${course.className}` : course.name,
@@ -907,6 +967,10 @@ function setupRegistration(courses) {
         amount: feeAmount(course),
         extra: course.audience === 'adult' && course.tuitionMop != null ? `<p>學費 ${money(course.tuitionMop)}${course.holdEdu ? '（可用持教）' : ''} 請另行確認繳交方式。</p>` : ''
       });
+      if ($('#successTitle')) $('#successTitle').textContent = mode === 'adult' ? '報名已收到！' : '預約成功！';
+      if ($('#successLead')) $('#successLead').textContent = mode === 'adult'
+        ? '交了材料費才算報名成功。我們有專人聯繫你，或者你亦可加下方微信，並把付款截圖發給我們。'
+        : '我們有專人聯繫你，或者你亦可加下方微信，並把付款截圖發給我們。';
       $('#registrationSuccess').hidden = false;
       $('#registrationSuccess').scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (error) {

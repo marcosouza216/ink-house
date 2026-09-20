@@ -50,6 +50,7 @@ python3 -m http.server 8080
 6. `supabase/adult-class-dates.sql`（班級、逐日上課日期、學費／持教）
 7. `supabase/kids-enlighten.sql`（啟蒙恆常班文案、學習內容與重點）
 8. `supabase/adult-oct-nov.sql`（10～11 月成人班與兒童報名費 MOP 100）
+9. `supabase/other-works.sql`（課程「其他照片」）
 
 前端只使用 Supabase anon key，数据权限由 Row Level Security 控制。不要在仓库或浏览器代码中使用 `service_role` key。
 
