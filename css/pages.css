@@ -6,7 +6,7 @@
 .work-block h3{margin:0 0 12px;font-size:18px;letter-spacing:.08em}
 .work-vertical{max-width:min(260px,68%);margin:0 auto 28px}
 .work-vertical .work-slider{touch-action:pan-x}
-.work-vertical .work-slide{min-height:0}
+.work-vertical .work-slide{min-height:0;overflow:hidden}
 .work-vertical .work-slide img{width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;pointer-events:none}
 .work-slider{position:relative;overflow:hidden;border:2px solid var(--ink);background:var(--paper,#fffaf0);box-shadow:6px 6px 0 var(--ink);touch-action:pan-y}
 .work-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}

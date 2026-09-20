@@ -152,11 +152,12 @@ window.removeSignup=async(id)=>{if(!confirm('確定要刪除這筆報名嗎？')
 function expandCourseDates(c){if(c.sessionDates?.length)return c.sessionDates;if(!c.startDate||!c.endDate||!c.weekdays?.length)return [''];const dates=[];const cursor=new Date(`${c.startDate}T00:00:00`);const end=new Date(`${c.endDate}T00:00:00`);while(cursor<=end){if(c.weekdays.includes(cursor.getDay()))dates.push(`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`);cursor.setDate(cursor.getDate()+1)}return dates.length?dates:['']}
 function dateRowHtml(value=''){return `<div class="date-row"><label>上課日期<input type="date" name="sessionDates" value="${esc(value)}"></label><button type="button" class="remove-date" data-remove-date>移除</button></div>`}
 function slotRowHtml(slot={},prefix='slot'){return `<div class="slot-row"><label>星期<select name="${prefix}Weekday">${DAYS.map((day,index)=>`<option value="${index}" ${Number(slot.weekday)===index?'selected':''}>星期${day}</option>`).join('')}</select></label><label>開始<input type="time" name="${prefix}Start" value="${esc(slot.start||'')}"></label><label>結束<input type="time" name="${prefix}End" value="${esc(slot.end||'')}"></label><label>備註<input name="${prefix}Label" placeholder="選填，例如水彩班" value="${esc(slot.label||'')}"></label><button type="button" class="remove-date" data-remove-slot>移除</button></div>`}
-function parseImagePos(url){const match=String(url||'').match(/#pos=(\d+),(\d+)/);return match?{x:Number(match[1]),y:Number(match[2])}:{x:50,y:50}}
+function parseImagePos(url){const match=String(url||'').match(/#pos=([\d.]+),([\d.]+)(?:,([\d.]+))?/);return match?{x:Number(match[1]),y:Number(match[2]),s:Number(match[3]||1)}:{x:50,y:50,s:1}}
 function cleanImageUrl(url){return String(url||'').replace(/#.*$/,'')}
-function withImagePos(url,x,y){const clean=cleanImageUrl(url);if(!clean)return '';x=Number(x);y=Number(y);return (x===50&&y===50)?clean:`${clean}#pos=${x},${y}`}
-function asWork(item){if(!item)return null;if(typeof item==='string')return {url:item,y:50};const url=item.url||'';return url?{url,y:Number(item.y??50)}:null}
-function thumbsHtml(urls,kind){return (urls||[]).map(asWork).filter(Boolean).map(work=>`<span class="work-thumb" data-kind="${kind}">${InkData.imgTag(work.url,'',`style="object-position:50% ${work.y}%"`)}<label class="thumb-pos">位置<input type="range" min="0" max="100" value="${work.y}" data-pos></label><span class="thumb-tools"><button type="button" data-move-thumb="-1" title="上移">↑</button><button type="button" data-move-thumb="1" title="下移">↓</button><button type="button" data-remove-thumb>×</button></span></span>`).join('')}
+function withImagePos(url,x,y,s){const clean=cleanImageUrl(url);if(!clean)return '';x=Number(x);y=Number(y);s=Number(s||1);if(x===50&&y===50&&(!s||s===1))return clean;return `${clean}#pos=${Math.round(x)},${Math.round(y)}${s&&s!==1?`,${Math.round(s*100)/100}`:''}`}
+function asWork(item){if(!item)return null;if(typeof item==='string'){const pos=parseImagePos(item);return {url:cleanImageUrl(item),x:pos.x,y:pos.y,s:pos.s}}const url=item.url||'';return url?{url,x:Number(item.x??50),y:Number(item.y??50),s:Number(item.s??1)}:null}
+function workFitStyle(work){const x=work.x??50,y=work.y??50,s=work.s??1;return `object-position:${x}% ${y}%;transform:scale(${s});transform-origin:${x}% ${y}%`}
+function thumbsHtml(urls,kind){return (urls||[]).map(asWork).filter(Boolean).map(work=>`<span class="work-thumb" data-kind="${kind}" data-x="${work.x}" data-y="${work.y}" data-s="${work.s}"><button type="button" class="thumb-edit" data-crop-thumb>${InkData.imgTag(work.url,'',`style="${workFitStyle(work)}"`)}</button><span class="thumb-tools"><button type="button" data-move-thumb="-1" title="上移">↑</button><button type="button" data-move-thumb="1" title="下移">↓</button><button type="button" data-remove-thumb>×</button></span></span>`).join('')}
 function trackCardHtml(track={}){
   const slots=track.slots?.length?track.slots:[{}];
   return `<div class="track-card"><div class="track-card-head"><strong>專業分項</strong><button type="button" class="delete" data-remove-track>刪除分項</button></div><input type="hidden" name="trackId" value="${esc(track.id||'')}"><div class="admin-form-row"><label>短名稱<input name="trackShort" placeholder="素描" value="${esc(track.short||'')}"></label><label>完整名稱<input name="trackName" placeholder="素描班提升班" value="${esc(track.name||'')}"></label></div><label>上課模式<textarea name="trackMode">${esc(track.mode||'')}</textarea></label><label>學習內容<textarea name="trackLearn">${esc(track.learn||'')}</textarea></label><label>教練重點<textarea name="trackFocus">${esc(track.focus||'')}</textarea></label><fieldset class="date-field"><legend>此時段</legend><div class="track-slots">${slots.map(slot=>slotRowHtml(slot,'trackSlot')).join('')}</div><button type="button" class="add-date" data-add-track-slot>＋ 新增時段</button></fieldset><label>老師作品<input type="file" name="trackTeacherFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="teacher">${thumbsHtml(track.teacherWorks,'teacher')}</div></label><label>學生作品<input type="file" name="trackStudentFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="student">${thumbsHtml(track.studentWorks,'student')}</div></label></div>`;
@@ -180,8 +181,8 @@ function remainingThumbs(scope,kind){
     const img=thumb.querySelector('img');
     const url=img?.dataset.cloud||img?.getAttribute('src')||'';
     if(!url)return null;
-    const y=Number(thumb.querySelector('[data-pos]')?.value);
-    return Number.isFinite(y)&&y!==50?{url,y}:url;
+    const x=Number(thumb.dataset.x??50),y=Number(thumb.dataset.y??50),s=Number(thumb.dataset.s??1);
+    return (x===50&&y===50&&s===1)?url:{url,x,y,s};
   }).filter(Boolean);
 }
 
@@ -194,7 +195,90 @@ function readTracks(){
   }).filter(track=>track.short||track.name);
 }
 
+function openCropEditor({src,x=50,y=50,s=1,cover=false,wide=false,onDone}){
+  const dialog=$('#cropDialog'),frame=$('#cropFrame'),img=$('#cropImage');
+  if(!dialog||!frame||!img)return;
+  frame.classList.toggle('cover',cover);
+  frame.classList.toggle('wide',wide);
+  img.src=src;
+  let scale=1,tx=0,ty=0,coverScale=1;
+  const pointers=new Map();
+  const apply=()=>{img.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) scale(${scale})`};
+  const clamp=()=>{
+    const Fw=frame.clientWidth,Fh=frame.clientHeight,Nw=img.naturalWidth,Nh=img.naturalHeight;
+    if(!Nw||!Nh)return;
+    coverScale=Math.max(Fw/Nw,Fh/Nh);
+    scale=Math.min(coverScale*4,Math.max(coverScale,scale));
+    const w=Nw*scale,h=Nh*scale;
+    const maxX=Math.max(0,(w-Fw)/2),maxY=Math.max(0,(h-Fh)/2);
+    tx=Math.min(maxX,Math.max(-maxX,tx));
+    ty=Math.min(maxY,Math.max(-maxY,ty));
+    apply();
+  };
+  const load=()=>{
+    const Nw=img.naturalWidth,Nh=img.naturalHeight;
+    if(!Nw||!Nh)return;
+    coverScale=Math.max(frame.clientWidth/Nw,frame.clientHeight/Nh);
+    scale=coverScale*Math.max(1,s);
+    img.style.width=Nw+'px';
+    img.style.height=Nh+'px';
+    tx=(Nw/2-x/100*Nw)*scale;
+    ty=(Nh/2-y/100*Nh)*scale;
+    clamp();
+  };
+  img.onload=load;
+  const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+  const onDown=event=>{
+    event.preventDefault();
+    frame.setPointerCapture(event.pointerId);
+    pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+  };
+  const onMove=event=>{
+    if(!pointers.has(event.pointerId))return;
+    event.preventDefault();
+    const prev=pointers.get(event.pointerId);
+    pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    if(pointers.size===1){
+      tx+=event.clientX-prev.x;
+      ty+=event.clientY-prev.y;
+      clamp();
+      return;
+    }
+    const other=[...pointers.entries()].find(([id])=>Number(id)!==event.pointerId);
+    if(!other)return;
+    const d0=dist(prev,other[1]),d1=dist({x:event.clientX,y:event.clientY},other[1]);
+    if(d0>4)scale*=d1/d0;
+    clamp();
+  };
+  const onUp=event=>pointers.delete(event.pointerId);
+  const onWheel=event=>{event.preventDefault();scale*=event.deltaY<0?1.08:0.92;clamp()};
+  frame.addEventListener('pointerdown',onDown);
+  frame.addEventListener('pointermove',onMove);
+  frame.addEventListener('pointerup',onUp);
+  frame.addEventListener('pointercancel',onUp);
+  frame.addEventListener('wheel',onWheel,{passive:false});
+  const cleanup=()=>{
+    frame.removeEventListener('pointerdown',onDown);
+    frame.removeEventListener('pointermove',onMove);
+    frame.removeEventListener('pointerup',onUp);
+    frame.removeEventListener('pointercancel',onUp);
+    frame.removeEventListener('wheel',onWheel);
+    pointers.clear();
+  };
+  $('#cropCancel').onclick=()=>{cleanup();dialog.close()};
+  $('#cropOk').onclick=()=>{
+    const Nw=img.naturalWidth,Nh=img.naturalHeight;
+    const next={x:Math.min(100,Math.max(0,((Nw/2-tx/scale)/Nw)*100)),y:Math.min(100,Math.max(0,((Nh/2-ty/scale)/Nh)*100)),s:Math.max(1,scale/coverScale)};
+    cleanup();
+    dialog.close();
+    onDone?.(next);
+  };
+  dialog.showModal();
+  requestAnimationFrame(load);
+}
+
 function bindCourseForm(){
+
   const audience=$('[name=audience]');
   const sync=()=>{
     const kids=audience?.value==='kids';
@@ -222,9 +306,22 @@ function bindCourseForm(){
       if(Number(button.dataset.moveThumb)<0)thumb.previousElementSibling?.before(thumb);
       else thumb.nextElementSibling?.after(thumb);
     });
-    $$('[data-pos]').forEach(input=>input.oninput=()=>{
-      const img=input.closest('.work-thumb')?.querySelector('img');
-      if(img)img.style.objectPosition=`50% ${input.value}%`;
+    $$('[data-crop-thumb]').forEach(button=>button.onclick=()=>{
+      const thumb=button.closest('.work-thumb');
+      const img=thumb?.querySelector('img');
+      if(!img)return;
+      openCropEditor({
+        src:img.currentSrc||img.src,
+        x:Number(thumb.dataset.x||50),
+        y:Number(thumb.dataset.y||50),
+        s:Number(thumb.dataset.s||1),
+        onDone:({x,y,s})=>{
+          thumb.dataset.x=x;thumb.dataset.y=y;thumb.dataset.s=s;
+          img.style.objectPosition=`${x}% ${y}%`;
+          img.style.transform=`scale(${s})`;
+          img.style.transformOrigin=`${x}% ${y}%`;
+        }
+      });
     });
   }
   bindRemove();
@@ -271,14 +368,15 @@ window.openCourse=(id,defaultAudience)=>{
       <label>課程注重重點（一行一項）<textarea name="focusText">${esc((c.focus||[]).join('\n'))}</textarea></label>
       ${c.id&&c.audience!=='adult'?`<p class="slot-label">專業分項（素描、動漫、水彩等）請在課程列表分開編輯。目前 ${c.tracks?.length||0} 個分項。</p>`:''}
     </div>
-    <label>課程封面<input type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif"><small>可調整左右／上下位置</small>
+    <div class="cover-field"><span class="slot-label">課程封面 · 點圖片拖動、縮放調整位置</span><input type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif">
       <div class="cover-pos" id="coverPosWrap" ${c.imageUrl?'':'hidden'}>
-        <img id="coverPreview" src="${esc(cleanImageUrl(c.imageUrl))}" alt="目前課程圖片" style="display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px;object-position:${parseImagePos(c.imageUrl).x}% ${parseImagePos(c.imageUrl).y}%">
-        <label class="thumb-pos">左右<input type="range" name="imageX" min="0" max="100" value="${parseImagePos(c.imageUrl).x}"></label>
-        <label class="thumb-pos">上下<input type="range" name="imageY" min="0" max="100" value="${parseImagePos(c.imageUrl).y}"></label>
+        <input type="hidden" name="imageX" value="${parseImagePos(c.imageUrl).x}">
+        <input type="hidden" name="imageY" value="${parseImagePos(c.imageUrl).y}">
+        <input type="hidden" name="imageS" value="${parseImagePos(c.imageUrl).s}">
+        <img id="coverPreview" src="${esc(cleanImageUrl(c.imageUrl))}" alt="目前課程圖片" style="display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px;object-position:${parseImagePos(c.imageUrl).x}% ${parseImagePos(c.imageUrl).y}%;transform:scale(${parseImagePos(c.imageUrl).s});transform-origin:${parseImagePos(c.imageUrl).x}% ${parseImagePos(c.imageUrl).y}%">
       </div>
-    </label>
-    <label>老師作品（直向顯示，可調位置與順序）<input type="file" name="teacherWorkFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="teacher">${thumbsHtml(c.teacherWorks,'teacher')}</div></label>
+    </div>
+    <label>老師作品（直向顯示，點圖可拖動縮放）<input type="file" name="teacherWorkFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="teacher">${thumbsHtml(c.teacherWorks,'teacher')}</div></label>
     <label>其他照片（顯示在課程資料下方）<input type="file" name="otherWorkFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="other">${thumbsHtml(c.otherWorks,'other')}</div></label>
     <label>學生作品（可多張）<input type="file" name="studentWorkFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple><div class="thumb-row" data-kind="student">${thumbsHtml(c.studentWorks,'student')}</div></label>
   `,async data=>{
@@ -291,7 +389,7 @@ window.openCourse=(id,defaultAudience)=>{
     const file=data.imageFile;
     let imageUrl=cleanImageUrl(c.imageUrl||'');
     if(file instanceof File&&file.size>0)imageUrl=await InkData.uploadCourseImage(file,c.slug||'course',{crop:false});
-    imageUrl=withImagePos(imageUrl,form.imageX?.value,form.imageY?.value);
+    imageUrl=withImagePos(imageUrl,form.imageX?.value,form.imageY?.value,form.imageS?.value);
     const uploadMany=async(list,folder,existing)=>{
       const files=[...list||[]].filter(item=>item instanceof File&&item.size>0);
       const kept=(existing||[]).filter(Boolean);
@@ -396,35 +494,66 @@ window.removeTrack=async(courseId,trackId)=>{
 };
 
 function slideshowPhotos(){return photos.filter(p=>p.placement==='slideshow').sort((a,b)=>a.sortOrder-b.sortOrder)}
-function photoCard(photo,actions,empty){return `<div class="photo-card">${photo?.imageUrl?InkData.imgTag(photo.imageUrl,''):`<div class="photo-empty">${empty}</div>`}<div class="actions">${actions}</div></div>`}
-function bindImagePreview(){
+function photoCard(photo,actions,empty){return `<div class="photo-card">${photo?.imageUrl?`<button type="button" class="photo-crop" data-crop-photo="${photo.id}">${InkData.imgTag(photo.imageUrl,'')}</button>`:`<div class="photo-empty">${empty}</div>`}<div class="actions">${actions}</div></div>`}
+function bindImagePreview(opts={}){
   const fileInput=$('[name=imageFile]');
   const preview=$('#coverPreview');
   const wrap=$('#coverPosWrap');
-  const syncPos=()=>{
+  const applyCover=(x,y,s)=>{
+    if($('[name=imageX]'))$('[name=imageX]').value=x;
+    if($('[name=imageY]'))$('[name=imageY]').value=y;
+    if($('[name=imageS]'))$('[name=imageS]').value=s;
     if(!preview)return;
-    const x=$('[name=imageX]')?.value||50;
-    const y=$('[name=imageY]')?.value||50;
     preview.style.objectPosition=`${x}% ${y}%`;
+    preview.style.transform=`scale(${s})`;
+    preview.style.transformOrigin=`${x}% ${y}%`;
   };
-  $$('[name=imageX],[name=imageY]').forEach(input=>input.oninput=syncPos);
+  preview?.addEventListener('click',()=>{
+    openCropEditor({
+      src:preview.currentSrc||preview.src,
+      x:Number($('[name=imageX]')?.value||50),
+      y:Number($('[name=imageY]')?.value||50),
+      s:Number($('[name=imageS]')?.value||1),
+      cover:opts.cover!==false&&!opts.wide,
+      wide:Boolean(opts.wide),
+      onDone:({x,y,s})=>applyCover(x,y,s)
+    });
+  });
   if(!fileInput)return;
   fileInput.onchange=()=>{
     if(!fileInput.files[0])return;
     const target=preview||Object.assign(document.createElement('img'),{id:'coverPreview'});
     target.src=URL.createObjectURL(fileInput.files[0]);
-    target.style='display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px';
+    target.style='display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px;cursor:pointer';
     if(!preview)fileInput.parentElement.appendChild(target);
     if(wrap)wrap.hidden=false;
-    syncPos();
+    applyCover(50,50,1);
   };
 }
 function renderPhotos(){
   if(photosError){$('#content').innerHTML=`<div class="panel"><p>無法載入主頁照片。請先在 Supabase SQL Editor 執行 <code>supabase/site-photos.sql</code>。</p><p class="empty">${esc(photosError)}</p></div>`;return}
   const slides=slideshowPhotos(),large=photos.find(p=>p.placement==='about-large'),small=photos.find(p=>p.placement==='about-small');
   $('#content').innerHTML=`<div class="panel"><div class="panel-head"><h2>輪播照片</h2><button class="add-button" onclick="openSlideshowPhoto()">＋ 新增輪播照片</button></div>${slides.length?`<div class="photo-grid">${slides.map((p,i)=>photoCard(p,`<button onclick="movePhoto('${p.id}',-1)" ${i===0?'disabled':''}>上移</button><button onclick="movePhoto('${p.id}',1)" ${i===slides.length-1?'disabled':''}>下移</button><button class="delete" onclick="removePhoto('${p.id}')">刪除</button>`)).join('')}</div>`:'<div class="empty">尚未上傳輪播照片，主頁會繼續顯示目前的預設畫面</div>'}</div><div class="panel"><div class="panel-head"><h2>歡迎區塊照片</h2></div><div class="about-slots"><div><p class="slot-label">大圖 · 學堂空間</p>${photoCard(large,`<button onclick="openAboutPhoto('about-large')">${large?'更換照片':'上傳照片'}</button>${large?`<button class="delete" onclick="removePhoto('${large.id}')">移除</button>`:''}`,'尚未上傳')}</div><div><p class="slot-label">小圖 · 創作過程</p>${photoCard(small,`<button onclick="openAboutPhoto('about-small')">${small?'更換照片':'上傳照片'}</button>${small?`<button class="delete" onclick="removePhoto('${small.id}')">移除</button>`:''}`,'尚未上傳')}</div></div></div>`
+  $$('[data-crop-photo]').forEach(button=>button.onclick=()=>{
+    const photo=photos.find(p=>p.id===button.dataset.cropPhoto);
+    if(!photo?.imageUrl)return;
+    const pos=parseImagePos(photo.imageUrl);
+    openCropEditor({
+      src:cleanImageUrl(photo.imageUrl),
+      x:pos.x,y:pos.y,s:pos.s,
+      cover:photo.placement!=='slideshow',
+      wide:photo.placement==='slideshow',
+      onDone:async ({x,y,s})=>{
+        try{
+          await InkData.saveSitePhoto({id:photo.id,placement:photo.placement,imageUrl:withImagePos(cleanImageUrl(photo.imageUrl),x,y,s),alt:photo.alt||'',sortOrder:photo.sortOrder||0});
+          await loadData();
+          render();
+        }catch(error){alert(`調整失敗：${error.message}`)}
+      }
+    });
+  });
 }
-window.openSlideshowPhoto=()=>{editor('新增輪播照片',`<label>照片<input type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif" required><small>JPG、PNG、WebP，會自動裁剪壓縮</small></label><label>說明文字（選填）<input name="alt" placeholder="例如：課堂創作"></label>`,async data=>{const file=data.imageFile;if(!(file instanceof File)||!file.size)throw new Error('請選擇照片');const imageUrl=await InkData.uploadCourseImage(file,'homepage');const slides=slideshowPhotos();await InkData.saveSitePhoto({placement:'slideshow',imageUrl,alt:data.alt||'',sortOrder:slides.length?Math.max(...slides.map(p=>p.sortOrder))+10:0})});bindImagePreview()};
-window.openAboutPhoto=placement=>{const photo=photos.find(p=>p.placement===placement)||{},title=placement==='about-large'?'學堂空間照片':'創作過程照片';editor(photo.id?`更換${title}`:`上傳${title}`,`<label>照片<input type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif" ${photo.imageUrl?'':'required'}><small>JPG、PNG、WebP，會自動裁剪壓縮</small>${photo.imageUrl?`<img src="${esc(photo.imageUrl)}" alt="目前照片" style="display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px">`:''}</label><label>說明文字（選填）<input name="alt" value="${esc(photo.alt)}"></label>`,async data=>{const file=data.imageFile;let imageUrl=photo.imageUrl||'';if(file instanceof File&&file.size>0)imageUrl=await InkData.uploadCourseImage(file,'homepage');if(!imageUrl)throw new Error('請選擇照片');await InkData.saveSitePhoto({id:photo.id,placement,imageUrl,alt:data.alt||'',sortOrder:photo.sortOrder||0})});bindImagePreview()};
+window.openSlideshowPhoto=()=>{editor('新增輪播照片',`<div class="cover-field"><span class="slot-label">點圖片拖動、縮放調整位置</span><input type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif" required><div class="cover-pos" id="coverPosWrap" hidden><input type="hidden" name="imageX" value="50"><input type="hidden" name="imageY" value="50"><input type="hidden" name="imageS" value="1"><img id="coverPreview" alt="預覽" style="display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px;cursor:pointer"></div></div><label>說明文字（選填）<input name="alt" placeholder="例如：課堂創作"></label>`,async data=>{const file=data.imageFile;if(!(file instanceof File)||!file.size)throw new Error('請選擇照片');const form=$('#editorForm');let imageUrl=await InkData.uploadCourseImage(file,'homepage',{crop:false});imageUrl=withImagePos(imageUrl,form.imageX?.value,form.imageY?.value,form.imageS?.value);const slides=slideshowPhotos();await InkData.saveSitePhoto({placement:'slideshow',imageUrl,alt:data.alt||'',sortOrder:slides.length?Math.max(...slides.map(p=>p.sortOrder))+10:0})});bindImagePreview({wide:true})};
+window.openAboutPhoto=placement=>{const photo=photos.find(p=>p.placement===placement)||{},title=placement==='about-large'?'學堂空間照片':'創作過程照片',pos=parseImagePos(photo.imageUrl);editor(photo.id?`更換${title}`:`上傳${title}`,`<div class="cover-field"><span class="slot-label">點圖片拖動、縮放調整位置</span><input type="file" name="imageFile" accept="image/jpeg,image/png,image/webp,image/gif" ${photo.imageUrl?'':'required'}><div class="cover-pos" id="coverPosWrap" ${photo.imageUrl?'':'hidden'}><input type="hidden" name="imageX" value="${pos.x}"><input type="hidden" name="imageY" value="${pos.y}"><input type="hidden" name="imageS" value="${pos.s}"><img id="coverPreview" src="${esc(cleanImageUrl(photo.imageUrl))}" alt="目前照片" style="display:block;width:100%;max-height:220px;object-fit:cover;margin-top:10px;cursor:pointer;object-position:${pos.x}% ${pos.y}%;transform:scale(${pos.s});transform-origin:${pos.x}% ${pos.y}%"></div></div><label>說明文字（選填）<input name="alt" value="${esc(photo.alt)}"></label>`,async data=>{const file=data.imageFile;const form=$('#editorForm');let imageUrl=cleanImageUrl(photo.imageUrl||'');if(file instanceof File&&file.size>0)imageUrl=await InkData.uploadCourseImage(file,'homepage',{crop:false});if(!imageUrl)throw new Error('請選擇照片');imageUrl=withImagePos(imageUrl,form.imageX?.value,form.imageY?.value,form.imageS?.value);await InkData.saveSitePhoto({id:photo.id,placement,imageUrl,alt:data.alt||'',sortOrder:photo.sortOrder||0})});bindImagePreview({cover:true})};
 window.movePhoto=async(id,dir)=>{const slides=slideshowPhotos();const index=slides.findIndex(p=>p.id===id),next=index+dir;if(index<0||next<0||next>=slides.length)return;try{await Promise.all([InkData.saveSitePhoto({...slides[index],sortOrder:slides[next].sortOrder}),InkData.saveSitePhoto({...slides[next],sortOrder:slides[index].sortOrder})]);await loadData();render()}catch(error){alert(`排序失敗：${error.message}`)}};
 window.removePhoto=async id=>{if(!confirm('確定要移除這張照片嗎？'))return;try{await InkData.deleteSitePhoto(id);await loadData();render()}catch(error){alert(`刪除失敗：${error.message}`)}};

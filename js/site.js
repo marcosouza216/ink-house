@@ -222,7 +222,7 @@ function setCalendarAudience(next) {
   if (document.querySelector(`link[href^="${href}"]`)) return;
   const stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = `css/${href}?v=20260920-tracksm`;
+  stylesheet.href = `css/${href}?v=20260920-homecrop`;
   document.head.appendChild(stylesheet);
 });
 
@@ -491,7 +491,7 @@ function courseWorks(course, kind) {
 function otherPhotosHtml(course) {
   const works = courseWorks(course, 'other');
   if (!works.map(asWork).filter(Boolean).length) return '';
-  return workSlider('其他照片', works, '');
+  return workStack(works);
 }
 
 function courseCard(course) {
@@ -538,19 +538,24 @@ function renderCatalog(courses) {
 
 function asWork(item) {
   if (!item) return null;
-  if (typeof item === 'string') return { url: item, y: 50 };
+  if (typeof item === 'string') return { url: item, x: 50, y: 50, s: 1 };
   const url = item.url || item.src || '';
-  return url ? { url, y: Number(item.y ?? 50) } : null;
+  return url ? { url, x: Number(item.x ?? 50), y: Number(item.y ?? 50), s: Number(item.s ?? 1) } : null;
 }
 
-function workStack(items) {
+function workFitStyle(work) {
+  const x = work.x ?? 50, y = work.y ?? 50, s = work.s ?? 1;
+  return `object-position:${x}% ${y}%;transform:scale(${s});transform-origin:${x}% ${y}%`;
+}
+
+function workStack(items, title) {
   const works = (items || []).map(asWork).filter(Boolean);
   if (!works.length) return '';
-  const slides = works.map((work) => `<div class="work-slide">${InkData.imgTag(work.url, '', `draggable="false" style="object-position:50% ${work.y}%"`)}</div>`).join('');
+  const slides = works.map((work) => `<div class="work-slide">${InkData.imgTag(work.url, '', `draggable="false" style="${workFitStyle(work)}"`)}</div>`).join('');
   const many = works.length > 1;
   const dots = many ? `<div class="work-dots">${works.map((_, index) => `<button type="button" data-dot="${index}" aria-label="第 ${index + 1} 張"></button>`).join('')}</div>` : '';
   const controls = many ? `<button type="button" class="work-arrow previous" data-prev aria-label="上一張">‹</button><button type="button" class="work-arrow next" data-next aria-label="下一張">›</button>` : '';
-  return `<section class="work-block work-vertical"><div class="work-slider" data-work-slider><div class="work-track">${slides}</div>${controls}${dots}</div></section>`;
+  return `<section class="work-block work-vertical">${title ? `<h3>${title}</h3>` : ''}<div class="work-slider" data-work-slider><div class="work-track">${slides}</div>${controls}${dots}</div></section>`;
 }
 
 function workSlider(title, urls, emptyText) {
@@ -616,7 +621,7 @@ function bindTrackSwitch(course) {
     const student = $('#studentWorksBottom');
     if (teacher) teacher.innerHTML = workStack(track.teacherWorks);
     panel.innerHTML = trackPanelHtml(track);
-    if (student) student.innerHTML = workSlider(`${track.short} · 學生作品`, track.studentWorks, '學生作品即將更新');
+    if (student) student.innerHTML = workStack(track.studentWorks, '學生作品');
     bindWorkSliders();
     const url = new URL(location.href);
     url.searchParams.set('track', track.id);
@@ -675,7 +680,7 @@ function renderDetail(courses) {
       ${meta}
     </div>
     ${otherPhotosHtml(course)}
-    <div id="studentWorksBottom">${workSlider(`${current.short} · 學生作品`, current.studentWorks, '學生作品即將更新')}</div>
+    <div id="studentWorksBottom">${workStack(current.studentWorks, '學生作品')}</div>
     ${calendar}`;
     bindTrackSwitch(course);
     bindWorkSliders();
@@ -700,7 +705,7 @@ function renderDetail(courses) {
       ${meta}
     </div>
     ${otherPhotosHtml(course)}
-    ${workSlider('學生作品', courseWorks(course, 'student'), '學生作品即將更新')}
+    ${workStack(courseWorks(course, 'student'), '學生作品')}
     ${calendar}`;
   bindWorkSliders();
   bindCourseCalendar(course);
