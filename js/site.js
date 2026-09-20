@@ -890,6 +890,7 @@ function setupRegistration(courses) {
       if (input) input.required = next === 'kids';
     });
     $$('#kidsFields [name="drawingExperience"]').forEach((input) => { input.required = next === 'kids'; });
+    $$('#adultFields [name="adultDrawingExperience"]').forEach((input) => { input.required = next === 'adult'; });
     ['adultName', 'adultPhone', 'adultWechat', 'adultCourseId', 'adultNotice'].forEach((field) => {
       const input = $(`#adultFields [name="${field}"]`);
       if (input) input.required = next === 'adult';
@@ -938,10 +939,10 @@ function setupRegistration(courses) {
     const wechat = mode === 'kids' ? form.wechat.value.trim() : form.adultWechat.value.trim();
     const age = mode === 'kids' ? form.age.value.trim() : '';
     const extraTime = (mode === 'kids' ? form.preferredTime.value : form.adultPreferredTime.value).trim();
-    const drawing = mode === 'kids' ? (form.drawingExperience.value || '') : '';
+    const drawing = mode === 'kids' ? (form.drawingExperience.value || '') : (form.adultDrawingExperience.value || '');
     if (!wechat) { $('#formStatus').textContent = '請填寫正確的微信帳號。'; return; }
     if (mode === 'kids' && !age) { $('#formStatus').textContent = '請填寫學生年齡。'; return; }
-    if (mode === 'kids' && !drawing) { $('#formStatus').textContent = '請選擇有沒有接觸過畫畫。'; return; }
+    if (!drawing) { $('#formStatus').textContent = '請選擇有沒有接觸過畫畫。'; return; }
     const selectedTime = mode === 'kids' ? form.selectedTime.value : courseScheduleText(course);
     const preferredParts = [];
     if (extraTime) preferredParts.push(`其他合適時間：${extraTime}`);
