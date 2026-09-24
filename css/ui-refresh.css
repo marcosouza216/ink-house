@@ -30,11 +30,11 @@
   .calendar-panel>header{padding:11px 12px}
   .calendar-panel h3{font-size:20px}
   .calendar-weekdays span{padding:6px 0;font-size:8px}
-  .calendar-day{min-width:0;min-height:66px;padding:3px 2px;overflow:hidden}
+  .calendar-day{min-width:0;min-height:66px;height:auto;padding:3px 2px;overflow:visible}
   .day-number{font-size:9px;margin-bottom:2px}
-  .calendar-event{padding:3px 2px;margin-top:2px;border-radius:2px;font-size:7px;line-height:1.25;overflow:hidden}
-  .calendar-event b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .calendar-event small{display:block;font-size:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .calendar-event{padding:3px 2px;margin-top:2px;border-radius:2px;font-size:7px;line-height:1.35;overflow:visible;white-space:normal}
+  .calendar-event b{display:block;overflow:visible;text-overflow:clip;white-space:normal;word-break:break-word}
+  .calendar-event small{display:block;font-size:6px;overflow:visible;text-overflow:clip;white-space:normal;word-break:break-word}
   .demo-notice{font-size:10px;line-height:1.6}
 }
 .home-slideshow{position:relative;display:block;min-height:720px;height:100vh;background:var(--cream);overflow:hidden}
@@ -116,3 +116,9 @@ body>.site-header:not(.page-header)+main{position:relative}
 .registration-success .button{width:max-content;margin:28px auto 0}
 @media(max-width:850px){.registration-success{grid-column:1}.registration-heading{font-size:34px}}
 @media(max-width:560px){.course-checkboxes{max-height:280px}.wechat-qr-wrap{width:min(240px,86%)}.registration-success{padding:27px 20px}}
+.calendar-event b,.calendar-event small{white-space:normal;word-break:break-word}
+#catalogGrid .course-body>.course-class,#catalogGrid .course-body>.course-classes{grid-column:1}
+#catalogGrid .audience-badge{justify-self:start;align-self:start;width:max-content;height:auto}
+@media(min-width:901px){#catalogGrid .course-footer{grid-row:1 / span 8}}
+.course-classes{display:grid;gap:2px;margin:0 0 8px;font-size:12px;line-height:1.55}
+.course-classes span{display:block}

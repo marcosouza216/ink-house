@@ -222,7 +222,7 @@ function setCalendarAudience(next) {
   if (document.querySelector(`link[href^="${href}"]`)) return;
   const stylesheet = document.createElement('link');
   stylesheet.rel = 'stylesheet';
-  stylesheet.href = `css/${href}?v=20260920-homecrop`;
+  stylesheet.href = `css/${href}?v=20260924-badge`;
   document.head.appendChild(stylesheet);
 });
 
@@ -494,12 +494,95 @@ function otherPhotosHtml(course) {
   return workStack(works);
 }
 
-function courseCard(course) {
-  const cover = courseCover(course);
+function courseFamilies(list) {
+  const families = [];
+  const byName = new Map();
+  list.forEach((course) => {
+    const key = `${course.audience}:${course.name}`;
+    if (!byName.has(key)) {
+      const family = [course];
+      byName.set(key, family);
+      families.push(family);
+    } else byName.get(key).push(course);
+  });
+  return families;
+}
+
+function courseFamily(courses, course) {
+  const family = courses.filter((item) => item.audience === course.audience && item.name === course.name);
+  return family.length ? family : [course];
+}
+
+function feesMatch(family) {
+  const first = family[0];
+  return family.every((item) => item.tuitionMop === first.tuitionMop && item.priceMop === first.priceMop && Boolean(item.holdEdu) === Boolean(first.holdEdu));
+}
+
+function classSummary(course) {
+  const time = course.startTime && course.endTime ? `${course.startTime}–${course.endTime}` : '';
+  const first = course.sessionDates?.[0] ? String(course.sessionDates[0]).slice(0, 10) : '';
+  const start = first ? `${Number(first.slice(8, 10))}/${Number(first.slice(5, 7))} 起` : '';
+  return [course.className || course.name, start, time].filter(Boolean).join(' ');
+}
+
+function calendarEventTitle(course, session) {
+  if (session?.title) return session.title;
+  if (course.className) return `${course.className} ${course.name}`;
+  return course.shortName || course.name;
+}
+
+function dayKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function sessionsOnDay(course, date) {
+  const key = dayKey(date);
+  const slots = weeklySlots(course);
+  if (slots.length) {
+    return slots.filter((slot) => slot.weekday === date.getDay()).map((slot) => ({
+      title: slotLabel(course, slot),
+      time: `${clock(slot.start)}–${clock(slot.end)}`,
+      trackId: slot.trackId
+    }));
+  }
+  const time = course.startTime && course.endTime ? `${clock(course.startTime)}–${clock(course.endTime)}` : '';
+  const title = course.className || course.name;
+  const dates = (course.sessionDates || []).map((iso) => String(iso).slice(0, 10));
+  if (dates.length) return dates.includes(key) ? [{ title, time }] : [];
+  if (!course.startDate || !course.endDate || !course.weekdays?.length) return [];
+  const start = new Date(`${String(course.startDate).slice(0, 10)}T00:00:00`);
+  const end = new Date(`${String(course.endDate).slice(0, 10)}T23:59:59`);
+  if (date >= start && date <= end && course.weekdays.includes(date.getDay())) return [{ title, time }];
+  return [];
+}
+
+function familyScheduleHtml(family) {
+  const course = family[0];
+  if (family.length < 2) return weeklySlots(course).length ? weeklyTimetableHtml(course) : `<h3>上課時間</h3><p>${courseScheduleText(course)}</p>`;
+  const matched = feesMatch(family);
+  return `<div class="course-list"><h3>班別時間</h3><ul>${family.map((item) => {
+    const fee = matched ? '' : ` · ${feeText(item).replace(/<br>/g, '，')}`;
+    const teacher = item.teacher && item.teacher !== course.teacher ? ` · ${item.teacher}` : '';
+    return `<li><strong>${item.className || item.name}</strong> ${courseScheduleText(item)}${teacher}${fee}${item.isFull ? '（已滿）' : ''}</li>`;
+  }).join('')}</ul></div>`;
+}
+
+function courseCard(family) {
+  const courses = Array.isArray(family) ? family : [family];
+  const course = courses[0];
+  const many = courses.length > 1;
+  const cover = courses.map(courseCover).find(Boolean) || '';
   const visual = cover ? `<div class="course-art has-image">${InkData.imgTag(cover, course.name, 'loading="lazy"')}</div>` : `<div class="course-art" style="--card:${course.color}"><span>${course.icon}</span></div>`;
-  const full = course.isFull ? '<span class="full-badge">已滿</span>' : '';
-  const className = (course.className || course.age) ? `<span class="course-class">${course.className || course.age}</span>` : '';
-  return `<article class="catalog-card" data-id="${course.id}">${visual}<div class="course-body">${full}<span class="audience-badge">${course.audience === 'kids' ? '兒童班' : '成人班'}</span><span class="course-meta">${course.category}</span><h3>${course.name}</h3>${className}<p>${course.tracks?.length ? course.tracks.map((track) => track.short).join('、') : (course.level || course.desc)}</p><div class="course-footer"><span>${course.teacher || '老師待定'}<br>${courseScheduleText(course)}<br>${feeText(course)}</span><strong>查看 →</strong></div></div></article>`;
+  const full = courses.every((item) => item.isFull) ? '<span class="full-badge">已滿</span>' : '';
+  const classLabel = many
+    ? courses.map((item) => item.className).filter(Boolean).join(' · ')
+    : (course.className || course.age);
+  const className = classLabel ? `<span class="course-class">${classLabel}</span>` : '';
+  const classList = many ? `<div class="course-classes">${courses.map((item) => `<span>${classSummary(item)}${item.isFull ? ' · 已滿' : ''}</span>`).join('')}</div>` : '';
+  const teachers = [...new Set(courses.map((item) => item.teacher).filter(Boolean))].join('、') || '老師待定';
+  const schedule = many ? '' : `<br>${courseScheduleText(course)}`;
+  const fee = many && !feesMatch(courses) ? '各班收費不同' : feeText(course);
+  return `<article class="catalog-card" data-id="${course.id}">${visual}<div class="course-body">${full}<span class="audience-badge">${course.audience === 'kids' ? '兒童班' : '成人班'}</span><span class="course-meta">${course.category}</span><h3>${course.name}</h3>${className}${classList}<p>${course.tracks?.length ? course.tracks.map((track) => track.short).join('、') : (course.level || course.desc)}</p><div class="course-footer"><span>${teachers}${schedule}<br>${fee}</span><strong>查看 →</strong></div></div></article>`;
 }
 
 function bindCourseCards() {
@@ -515,8 +598,9 @@ function renderCatalog(courses) {
   }
   const render = () => {
     const list = homeAudience === 'kids' ? kidsCourses(courses) : courses.filter((course) => course.audience === 'adult');
-    $('#catalogGrid').innerHTML = list.length ? list.map(courseCard).join('') : '<p class="empty-state">暫時沒有課程。</p>';
-    if ($('#resultCount')) $('#resultCount').textContent = `共 ${list.length} 個課程`;
+    const groups = courseFamilies(list);
+    $('#catalogGrid').innerHTML = groups.length ? groups.map(courseCard).join('') : '<p class="empty-state">暫時沒有課程。</p>';
+    if ($('#resultCount')) $('#resultCount').textContent = `共 ${groups.length} 個課程`;
     bindCourseCards();
     $$('#courses [data-audience], .home-courses [data-audience]').forEach((item) => item.classList.toggle('active', item.dataset.audience === homeAudience));
   };
@@ -635,18 +719,20 @@ function renderDetail(courses) {
   const id = params.get('id');
   const course = courses.find((item) => item.id === id) || courses[0];
   if (!course) { $('#courseDetail').innerHTML = '<p>暫時沒有課程資料。</p>'; return; }
+  const family = courseFamily(courses, course);
+  const signupCourse = course.isFull ? (family.find((item) => !item.isFull) || null) : course;
   document.title = `${course.name}｜賞心學堂 Ink House`;
-  const full = course.isFull ? '<span class="full-badge">已滿</span>' : '';
-  const cta = course.isFull
-    ? '<span class="button dark" style="opacity:.55;pointer-events:none">已滿</span>'
-    : `<a class="button coral" href="signup.html?audience=${course.audience}&course=${course.id}">${course.audience === 'adult' ? '立即報名' : '預約試堂'} →</a>`;
+  const full = family.every((item) => item.isFull) ? '<span class="full-badge">已滿</span>' : '';
+  const cta = signupCourse
+    ? `<a class="button coral" href="signup.html?audience=${signupCourse.audience}&course=${signupCourse.id}">${signupCourse.audience === 'adult' ? '立即報名' : '預約試堂'} →</a>`
+    : '<span class="button dark" style="opacity:.55;pointer-events:none">已滿</span>';
   const meta = `
       <div class="detail-meta">
         <div><span>課程對象</span><strong>${course.audience === 'kids' ? (course.age || '兒童') : '成人'}</strong></div>
         ${course.audience === 'adult' && course.tuitionMop != null ? `<div><span>學費</span><strong>${money(course.tuitionMop)}${course.holdEdu ? '（可用持教）' : ''}</strong></div>` : ''}
         <div><span>${course.feeLabel}${course.audience === 'adult' ? '（需自費）' : ''}</span><strong>${feeAmount(course)}</strong></div>
       </div>
-      ${weeklySlots(course).length ? weeklyTimetableHtml(course) : `<h3>上課時間</h3><p>${courseScheduleText(course)}</p>`}`;
+      ${familyScheduleHtml(family)}`;
   const calendar = `
     <section class="course-cal">
       <h3>本課月曆</h3>
@@ -683,7 +769,7 @@ function renderDetail(courses) {
     ${calendar}`;
     bindTrackSwitch(course);
     bindWorkSliders();
-    bindCourseCalendar(course);
+    bindCourseCalendar(family);
     return;
   }
 
@@ -707,16 +793,18 @@ function renderDetail(courses) {
     ${workStack(courseWorks(course, 'student'), '學生作品')}
     ${calendar}`;
   bindWorkSliders();
-  bindCourseCalendar(course);
+  bindCourseCalendar(family);
 }
 
-function bindCourseCalendar(course) {
+function bindCourseCalendar(family) {
+  const courses = Array.isArray(family) ? family : [family];
+  const course = courses[0];
   const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
   const now = new Date();
   let monthOffset = 0;
-  const slots = weeklySlots(course);
-  const firstDate = course.sessionDates?.[0] || course.startDate;
-  if (!slots.length && firstDate) {
+  const dated = courses.filter((item) => !weeklySlots(item).length);
+  const firstDate = dated.flatMap((item) => (item.sessionDates?.length ? item.sessionDates : (item.startDate ? [item.startDate] : []))).map((iso) => String(iso).slice(0, 10)).sort()[0];
+  if (dated.length === courses.length && firstDate) {
     const start = new Date(`${firstDate}T00:00:00`);
     monthOffset = (start.getFullYear() - now.getFullYear()) * 12 + (start.getMonth() - now.getMonth());
     if (monthOffset < 0) monthOffset = 0;
@@ -726,15 +814,10 @@ function bindCourseCalendar(course) {
     const year = shown.getFullYear();
     const month = shown.getMonth();
     const gridStart = new Date(year, month, 1 - shown.getDay());
-    const dateSet = new Set((course.sessionDates || []).map((iso) => String(iso).slice(0, 10)));
-    const rangeStart = course.startDate ? new Date(`${course.startDate}T00:00:00`) : null;
-    const rangeEnd = course.endDate ? new Date(`${course.endDate}T23:59:59`) : null;
-    const timeLabel = course.startTime && course.endTime ? `${course.startTime}–${course.endTime}` : '';
-    const ymd = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const usedTones = new Set();
     const tones = {};
-    const styleFor = (trackId) => {
-      const key = eventKey(course, trackId);
+    const styleFor = (item, trackId) => {
+      const key = eventKey(item, trackId);
       if (!tones[key]) tones[key] = eventTone(key, usedTones);
       return tones[key];
     };
@@ -744,11 +827,7 @@ function bindCourseCalendar(course) {
       const date = new Date(gridStart);
       date.setDate(gridStart.getDate() + index);
       const inMonth = date.getMonth() === month;
-      const daySlots = inMonth ? slots.filter((slot) => slot.weekday === date.getDay()) : [];
-      const onClass = inMonth && (daySlots.length ? true : dateSet.size ? dateSet.has(ymd(date)) : rangeStart && rangeEnd && course.weekdays?.includes(date.getDay()) && date >= rangeStart && date <= rangeEnd);
-      const events = daySlots.length
-        ? daySlots.map((slot) => `<span class="calendar-event" style="${styleFor(slot.trackId)}"><b>${slotLabel(course, slot)}</b><small>${clock(slot.start)}–${clock(slot.end)}${course.isFull ? ' · 已滿' : ''}</small></span>`).join('')
-        : (onClass ? `<span class="calendar-event" style="${styleFor()}"><b>${course.name}</b><small>${timeLabel}${course.isFull ? ' · 已滿' : ''}</small></span>` : '');
+      const events = inMonth ? courses.flatMap((item) => sessionsOnDay(item, date).map((session) => `<span class="calendar-event" style="${styleFor(item, session.trackId)}"><b>${session.title}</b><small>${session.time}${item.isFull ? ' · 已滿' : ''}</small></span>`)).join('') : '';
       cells += `<div class="calendar-day${inMonth ? '' : ' outside'}"><span class="day-number">${date.getDate()}</span>${events}</div>`;
     }
     $('#courseCalGrid').innerHTML = `<section class="calendar-panel ${course.audience}"><header><h3>${course.name}</h3><span>${year}.${String(month + 1).padStart(2, '0')}</span></header><div class="calendar-weekdays">${weekdays.map((day) => `<span>${day}</span>`).join('')}</div><div class="calendar-grid">${cells}</div></section>`;
@@ -826,7 +905,7 @@ async function renderTimetable(courses) {
         if (!course) return '';
         const time = timeRange(session.startsAt, session.endsAt || course.endTime);
         const href = session.trackId ? `course.html?id=${course.id}&track=${session.trackId}` : `course.html?id=${course.id}`;
-        return `<a class="calendar-event" href="${href}" style="${tones[eventKey(course, session.trackId)] || ''}"><b>${session.title || course.shortName || course.name}</b><small>${time}${course.isFull ? ' · 已滿' : ''}</small></a>`;
+        return `<a class="calendar-event" href="${href}" style="${tones[eventKey(course, session.trackId)] || ''}"><b>${calendarEventTitle(course, session)}</b><small>${time}${course.isFull ? ' · 已滿' : ''}</small></a>`;
       }).join('')}</div>`;
     }
     $('#scheduleList').innerHTML = `<section class="calendar-panel ${audience}"><header><h3>${audience === 'adult' ? '成人班月曆' : '兒童班月曆'}</h3><span>${year}.${String(month + 1).padStart(2, '0')}</span></header><div class="calendar-weekdays">${weekdays.map((day) => `<span>${day}</span>`).join('')}</div><div class="calendar-grid">${cells}</div></section>`;
