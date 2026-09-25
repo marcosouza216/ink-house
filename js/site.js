@@ -1,5 +1,6 @@
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
+const noStop = (value) => String(value ?? '').replace(/。/g, ' ').replace(/[ \t]{2,}/g, ' ').trim();
 const KIDS_SLUGS = ['kids-3-6', 'kids-7-12', 'kids-5-14'];
 const weekdayNames = ['日', '一', '二', '三', '四', '五', '六'];
 const COURSE_COPY = {
@@ -9,7 +10,7 @@ const COURSE_COPY = {
     category: '啟蒙班',
     level: '綜合材料創作，多元化教學模式',
     label: '輕鬆趣味引導教學',
-    desc: '我們不教「怎麼畫得像」，我們引導孩子「勇敢表達自己」。每堂課以故事、觀察、互動開啟創作，每週不同主題，老師引導學生創作，孩子自主發揮，以培養興趣、想像力為主。',
+    desc: '我們不教「怎麼畫得像」，我們引導孩子「勇敢表達自己」 每堂課以故事、觀察、互動開啟創作，每週不同主題，老師引導學生創作，孩子自主發揮，以培養興趣、想像力為主',
     shortName: '啟蒙班',
     learn: ['基礎線條、點線面訓練', '色彩認知、配色感覺、混色練習', '簡單造型、動物、植物、場景創作', '黏土、拼貼、水彩、馬克筆、綜合材料體驗'],
     focus: ['培養興趣為第一，讓孩子喜歡畫畫、不怕動筆', '訓練專注力、耐心、手眼協調、手部精細動作', '解放想像力，鼓勵原創、不限制畫風'],
@@ -32,7 +33,7 @@ const COURSE_COPY = {
     level: '造型＋色彩＋構圖循序漸進',
     label: '注重繪畫基本功和技巧訓練',
     descTitle: '上課模式',
-    desc: '每週設定多元主題，激發學生藝術潛能。專業導師指導，造型＋色彩＋構圖循序漸進。每堂課有明確學習目標：先理論講解、示範拆解、分步練習、完整成品輸出。注重繪畫基本功和技巧訓練。',
+    desc: '每週設定多元主題，激發學生藝術潛能 專業導師指導，造型＋色彩＋構圖循序漸進 每堂課有明確學習目標：先理論講解、示範拆解、分步練習、完整成品輸出 注重繪畫基本功和技巧訓練',
     learn: ['丙烯／水彩／馬克筆／彩鉛完整技法', '藝術鑑賞，認識藝術家風格，培育美感', '透視原理、比例結構、形體造型訓練', '色彩理論、明暗光影、立體塑造、質感表現'],
     focus: ['提升專業繪畫能力，打好美術基礎', '訓練觀察力、邏輯思維、空間思維', '培養獨立構圖、獨立完成完整作品的能力', '提升審美能力，穩定畫風、提升作品精細度'],
     shortName: '進階班',
@@ -55,7 +56,7 @@ const COURSE_COPY = {
     category: '專業提升班',
     level: '學院派方向',
     label: '',
-    desc: '可依興趣選擇素描、卡通動漫、水彩、丙烯或大型丙烯畫創作，針對性提升專業繪畫能力。',
+    desc: '可依興趣選擇素描、卡通動漫、水彩、丙烯或大型丙烯畫創作，針對性提升專業繪畫能力',
     learn: ['素描班提升班', '卡通動漫提升班', '水彩提升班', '丙烯專業提升班', '大型丙烯畫創作'],
     tracks: [
       { id: 'sketch', short: '素描', name: '素描班提升班', mode: '學院派系統訓練，分步拆解，強化寫實觀察', learn: '靜物、石膏、明暗透視、質感造形', focus: '紮實素描功底，建立科學的觀察與繪畫邏輯', slots: [{ weekday: 0, start: '10:30', end: '12:30', label: '素描班' }] },
@@ -157,18 +158,18 @@ function makeAdultCourse(row) {
 }
 
 const ADULT_TERM = [
-  { slug: 'adult-floral-home-a1', name: '創意家居花藝全能班', className: 'A1班', category: '花藝', teacher: 'Eva', sessionDates: ['2026-10-16','2026-10-23','2026-10-30','2026-11-06'], startTime: '19:00', endTime: '22:00', tuitionMop: 1300, priceMop: 1080, sortOrder: 201, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時。學費 MOP 1,300（可用持教），材料費 MOP 1,080（需自費）。' },
-  { slug: 'adult-ikebana-b1', name: '日式現代花道班', className: 'B1班', category: '花道', teacher: 'Eva', sessionDates: ['2026-10-17','2026-10-24','2026-10-31','2026-11-07'], startTime: '19:00', endTime: '22:00', tuitionMop: 1300, priceMop: 980, sortOrder: 202, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時。學費 MOP 1,300（可用持教），材料費 MOP 980（需自費）。' },
-  { slug: 'adult-clay-mini-c1', name: '黏土微型手作班', className: 'C1班', category: '手作', teacher: 'Zoe', sessionDates: ['2026-11-20','2026-12-04','2026-12-11','2026-12-18'], startTime: '19:30', endTime: '22:00', tuitionMop: 1250, priceMop: 330, sortOrder: 203, level: '4 堂課 · 每堂 2.5 小時', desc: '4 堂課，每堂 2.5 小時。學費 MOP 1,250（可用持教），材料費 MOP 330（需自費）。' },
-  { slug: 'adult-macao-watercolor-d1', name: '澳門風景水彩課程', className: 'D1班', category: '水彩', teacher: 'Alice', sessionDates: ['2026-10-04','2026-10-11','2026-10-25','2026-11-01'], startTime: '10:30', endTime: '13:30', tuitionMop: 1280, priceMop: 180, sortOrder: 204, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時。學費 MOP 1,280（可用持教），材料費 MOP 180（需自費）。' },
-  { slug: 'adult-macao-watercolor-d2', name: '澳門風景水彩課程', className: 'D2班', category: '水彩', teacher: 'Alice', sessionDates: ['2026-10-06','2026-10-08','2026-10-13','2026-10-15'], startTime: '19:00', endTime: '22:00', tuitionMop: 1280, priceMop: 180, sortOrder: 205, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時。學費 MOP 1,280（可用持教），材料費 MOP 180（需自費）。' },
-  { slug: 'adult-macao-watercolor-d3', name: '澳門風景水彩課程', className: 'D3班', category: '水彩', teacher: 'Alice', sessionDates: ['2026-10-20','2026-10-22','2026-10-27','2026-10-29'], startTime: '19:00', endTime: '22:00', tuitionMop: 1280, priceMop: 180, sortOrder: 206, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時。學費 MOP 1,280（可用持教），材料費 MOP 180（需自費）。' },
-  { slug: 'adult-pet-watercolor-e1', name: '水彩寵物肖像課程', className: 'E1班', category: '水彩', teacher: 'Ayabie', sessionDates: ['2026-10-12','2026-10-19','2026-10-26','2026-11-02'], startTime: '19:00', endTime: '22:00', tuitionMop: 1320, priceMop: 200, sortOrder: 207, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時。學費 MOP 1,320（可用持教），材料費 MOP 200（需自費）。' },
-  { slug: 'adult-watercolor-portrait-f1', name: '水彩時尚人像插畫課程', className: 'F1班', category: '水彩', teacher: 'Ayabie', sessionDates: ['2026-11-09','2026-11-16','2026-11-23','2026-11-30'], startTime: '19:00', endTime: '22:00', tuitionMop: 1450, priceMop: 200, sortOrder: 208, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時。學費 MOP 1,450（可用持教），材料費 MOP 200（需自費）。' },
-  { slug: 'adult-copperplate-g1', name: '銅板體小草課程', className: 'G1班', category: '書法', teacher: 'Belinda', sessionDates: ['2026-11-09','2026-11-16','2026-11-23','2026-11-30'], startTime: '19:00', endTime: '22:00', tuitionMop: 1550, priceMop: 350, sortOrder: 209, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時。學費 MOP 1,550（可用持教），材料費 MOP 350（需自費）。' },
-  { slug: 'adult-zentangle-h1', name: '禪繞畫初級入門課程', className: 'H1班', category: '禪繞', teacher: 'Fish', sessionDates: ['2026-10-06','2026-10-13','2026-10-20','2026-10-27','2026-11-03','2026-11-10'], startTime: '11:00', endTime: '13:00', tuitionMop: 1200, priceMop: 250, sortOrder: 210, level: '每堂 2 小時', desc: '逢星期二，每堂 2 小時。學費 MOP 1,200（可用持教），材料費 MOP 250（需自費）。' },
-  { slug: 'adult-pet-acrylic-i1', name: '寵物丙烯畫課程', className: 'I1班', category: '丙烯', teacher: 'Hazel', sessionDates: ['2026-10-21','2026-10-23','2026-10-28','2026-10-30'], startTime: '19:00', endTime: '22:00', tuitionMop: 1300, priceMop: 180, sortOrder: 211, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時。學費 MOP 1,300（可用持教），材料費 MOP 180（需自費）。' },
-  { slug: 'adult-pet-acrylic-i2', name: '寵物丙烯畫課程', className: 'I2班', category: '丙烯', teacher: 'Hazel', sessionDates: ['2026-11-04','2026-11-06','2026-11-11','2026-11-13'], startTime: '19:00', endTime: '22:00', tuitionMop: 1300, priceMop: 180, sortOrder: 212, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時。學費 MOP 1,300（可用持教），材料費 MOP 180（需自費）。' }
+  { slug: 'adult-floral-home-a1', name: '創意家居花藝全能班', className: 'A1班', category: '花藝', teacher: 'Eva', sessionDates: ['2026-10-16','2026-10-23','2026-10-30','2026-11-06'], startTime: '19:00', endTime: '22:00', tuitionMop: 1300, priceMop: 1080, sortOrder: 201, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時 學費 MOP 1,300（可用持教），材料費 MOP 1,080（需自費）' },
+  { slug: 'adult-ikebana-b1', name: '日式現代花道班', className: 'B1班', category: '花道', teacher: 'Eva', sessionDates: ['2026-10-17','2026-10-24','2026-10-31','2026-11-07'], startTime: '19:00', endTime: '22:00', tuitionMop: 1300, priceMop: 980, sortOrder: 202, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時 學費 MOP 1,300（可用持教），材料費 MOP 980（需自費）' },
+  { slug: 'adult-clay-mini-c1', name: '黏土微型手作班', className: 'C1班', category: '手作', teacher: 'Zoe', sessionDates: ['2026-11-20','2026-12-04','2026-12-11','2026-12-18'], startTime: '19:30', endTime: '22:00', tuitionMop: 1250, priceMop: 330, sortOrder: 203, level: '4 堂課 · 每堂 2.5 小時', desc: '4 堂課，每堂 2.5 小時 學費 MOP 1,250（可用持教），材料費 MOP 330（需自費）' },
+  { slug: 'adult-macao-watercolor-d1', name: '澳門風景水彩課程', className: 'D1班', category: '水彩', teacher: 'Alice', sessionDates: ['2026-10-04','2026-10-11','2026-10-25','2026-11-01'], startTime: '10:30', endTime: '13:30', tuitionMop: 1280, priceMop: 180, sortOrder: 204, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時 學費 MOP 1,280（可用持教），材料費 MOP 180（需自費）' },
+  { slug: 'adult-macao-watercolor-d2', name: '澳門風景水彩課程', className: 'D2班', category: '水彩', teacher: 'Alice', sessionDates: ['2026-10-06','2026-10-08','2026-10-13','2026-10-15'], startTime: '19:00', endTime: '22:00', tuitionMop: 1280, priceMop: 180, sortOrder: 205, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時 學費 MOP 1,280（可用持教），材料費 MOP 180（需自費）' },
+  { slug: 'adult-macao-watercolor-d3', name: '澳門風景水彩課程', className: 'D3班', category: '水彩', teacher: 'Alice', sessionDates: ['2026-10-20','2026-10-22','2026-10-27','2026-10-29'], startTime: '19:00', endTime: '22:00', tuitionMop: 1280, priceMop: 180, sortOrder: 206, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時 學費 MOP 1,280（可用持教），材料費 MOP 180（需自費）' },
+  { slug: 'adult-pet-watercolor-e1', name: '水彩寵物肖像課程', className: 'E1班', category: '水彩', teacher: 'Ayabie', sessionDates: ['2026-10-12','2026-10-19','2026-10-26','2026-11-02'], startTime: '19:00', endTime: '22:00', tuitionMop: 1320, priceMop: 200, sortOrder: 207, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時 學費 MOP 1,320（可用持教），材料費 MOP 200（需自費）' },
+  { slug: 'adult-watercolor-portrait-f1', name: '水彩時尚人像插畫課程', className: 'F1班', category: '水彩', teacher: 'Ayabie', sessionDates: ['2026-11-09','2026-11-16','2026-11-23','2026-11-30'], startTime: '19:00', endTime: '22:00', tuitionMop: 1450, priceMop: 200, sortOrder: 208, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時 學費 MOP 1,450（可用持教），材料費 MOP 200（需自費）' },
+  { slug: 'adult-copperplate-g1', name: '銅板體小草課程', className: 'G1班', category: '書法', teacher: 'Belinda', sessionDates: ['2026-11-09','2026-11-16','2026-11-23','2026-11-30'], startTime: '19:00', endTime: '22:00', tuitionMop: 1550, priceMop: 350, sortOrder: 209, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時 學費 MOP 1,550（可用持教），材料費 MOP 350（需自費）' },
+  { slug: 'adult-zentangle-h1', name: '禪繞畫初級入門課程', className: 'H1班', category: '禪繞', teacher: 'Fish', sessionDates: ['2026-10-06','2026-10-13','2026-10-20','2026-10-27','2026-11-03','2026-11-10'], startTime: '11:00', endTime: '13:00', tuitionMop: 1200, priceMop: 250, sortOrder: 210, level: '每堂 2 小時', desc: '逢星期二，每堂 2 小時 學費 MOP 1,200（可用持教），材料費 MOP 250（需自費）' },
+  { slug: 'adult-pet-acrylic-i1', name: '寵物丙烯畫課程', className: 'I1班', category: '丙烯', teacher: 'Hazel', sessionDates: ['2026-10-21','2026-10-23','2026-10-28','2026-10-30'], startTime: '19:00', endTime: '22:00', tuitionMop: 1300, priceMop: 180, sortOrder: 211, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時 學費 MOP 1,300（可用持教），材料費 MOP 180（需自費）' },
+  { slug: 'adult-pet-acrylic-i2', name: '寵物丙烯畫課程', className: 'I2班', category: '丙烯', teacher: 'Hazel', sessionDates: ['2026-11-04','2026-11-06','2026-11-11','2026-11-13'], startTime: '19:00', endTime: '22:00', tuitionMop: 1300, priceMop: 180, sortOrder: 212, level: '4 堂課 · 每堂 3 小時', desc: '4 堂課，每堂 3 小時 學費 MOP 1,300（可用持教），材料費 MOP 180（需自費）' }
 ];
 
 function loadCatalog(courses) {
@@ -271,7 +272,7 @@ function setupChrome() {
     </div>
   </footer>`);
   $$('.copy-contact').forEach((button) => button.addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(button.dataset.copy); $('#copyStatus').textContent = '微信帳號已複製。'; }
+    try { await navigator.clipboard.writeText(button.dataset.copy); $('#copyStatus').textContent = '微信帳號已複製'; }
     catch { $('#copyStatus').textContent = `微信帳號：${button.dataset.copy}`; }
   }));
 }
@@ -488,10 +489,52 @@ function courseWorks(course, kind) {
   return course.studentWorks || [];
 }
 
-function otherPhotosHtml(course) {
-  const works = courseWorks(course, 'other');
-  if (!works.map(asWork).filter(Boolean).length) return '';
-  return workStack(works);
+function paragraphChunks(text) {
+  return String(text || '').split(/\n+/).flatMap((block) => {
+    const trimmed = block.trim();
+    if (!trimmed) return [];
+    const sentences = trimmed.split(/。/).map((part) => part.trim()).filter(Boolean);
+    return trimmed.includes('。') ? sentences : [trimmed];
+  }).map((part) => `<p class="course-intro">${noStop(part)}</p>`);
+}
+
+function storyChunks(course, track) {
+  const chunks = [];
+  const paragraphs = paragraphChunks(course.desc);
+  if (course.descTitle && !track) {
+    const heading = `<h3>${noStop(course.descTitle)}</h3>`;
+    if (paragraphs.length) paragraphs[0] = heading + paragraphs[0];
+    else paragraphs.push(heading);
+  }
+  chunks.push(...paragraphs);
+  if (track) {
+    const time = (track.slots || []).map((slot) => `星期${weekdayNames[slot.weekday]} ${clock(slot.start)}–${clock(slot.end)}`).join('、');
+    chunks.push(`<h2>${noStop(track.name)}</h2>${time ? `<p class="course-tagline">${time}</p>` : ''}`);
+    if (track.mode) chunks.push(`<div class="course-list"><h3>上課模式</h3><p>${noStop(track.mode)}</p></div>`);
+    if (track.learn) chunks.push(`<div class="course-list"><h3>學習內容</h3><p>${noStop(track.learn)}</p></div>`);
+    if (track.focus) chunks.push(`<div class="course-list"><h3>教練重點</h3><p>${noStop(track.focus)}</p></div>`);
+  } else {
+    if (course.learn?.length) chunks.push(`<div class="course-list"><h3>學習內容</h3><ol>${course.learn.map((item) => `<li>${noStop(item)}</li>`).join('')}</ol></div>`);
+    if (course.focus?.length) chunks.push(`<div class="course-list"><h3>課程注重重點</h3><ol>${course.focus.map((item) => `<li>${noStop(item)}</li>`).join('')}</ol></div>`);
+    if (course.compare?.length) chunks.push(`<div class="course-list course-compare"><h3>年齡階段學習重點比較</h3><ul>${course.compare.map((item) => `<li><strong>${noStop(item.age)}</strong> ${noStop(item.text)}</li>`).join('')}</ul></div>`);
+    if (course.label) chunks.push(`<p class="course-motto">${noStop(course.label)}</p>`);
+  }
+  return chunks.filter(Boolean);
+}
+
+function weaveStory(chunks, works) {
+  const photos = (works || []).map(asWork).filter(Boolean);
+  let html = '';
+  const total = Math.max(chunks.length, photos.length);
+  for (let index = 0; index < total; index += 1) {
+    if (chunks[index]) html += chunks[index];
+    if (photos[index]) html += workStack([photos[index]]);
+  }
+  return html;
+}
+
+function courseStoryHtml(course, track) {
+  return `<div class="course-story" id="courseStory">${weaveStory(storyChunks(course, track), courseWorks(course, 'other'))}</div>`;
 }
 
 function courseFamilies(list) {
@@ -562,7 +605,7 @@ function familyScheduleHtml(family) {
   const matched = feesMatch(family);
   return `<div class="course-list"><h3>班別時間</h3><ul>${family.map((item) => {
     const fee = matched ? '' : ` · ${feeText(item).replace(/<br>/g, '，')}`;
-    const teacher = item.teacher && item.teacher !== course.teacher ? ` · ${item.teacher}` : '';
+    const teacher = item.teacher && !/待定/.test(item.teacher) && item.teacher !== course.teacher ? ` · ${item.teacher}` : '';
     return `<li><strong>${item.className || item.name}</strong> ${courseScheduleText(item)}${teacher}${fee}${item.isFull ? '（已滿）' : ''}</li>`;
   }).join('')}</ul></div>`;
 }
@@ -577,12 +620,14 @@ function courseCard(family) {
   const classLabel = many
     ? courses.map((item) => item.className).filter(Boolean).join(' · ')
     : (course.className || course.age);
-  const className = classLabel ? `<span class="course-class">${classLabel}</span>` : '';
+  const teachers = [...new Set(courses.map((item) => item.teacher).filter((name) => name && !/待定/.test(name)))];
+  const classBits = [classLabel, teachers.join('、')].filter(Boolean);
+  const className = classBits.length ? `<span class="course-class">${classBits.join(' · ')}</span>` : '';
   const classList = many ? `<div class="course-classes">${courses.map((item) => `<span>${classSummary(item)}${item.isFull ? ' · 已滿' : ''}</span>`).join('')}</div>` : '';
-  const teachers = [...new Set(courses.map((item) => item.teacher).filter(Boolean))].join('、') || '老師待定';
-  const schedule = many ? '' : `<br>${courseScheduleText(course)}`;
+  const schedule = many ? '' : courseScheduleText(course);
   const fee = many && !feesMatch(courses) ? '各班收費不同' : feeText(course);
-  return `<article class="catalog-card" data-id="${course.id}">${visual}<div class="course-body">${full}<span class="audience-badge">${course.audience === 'kids' ? '兒童班' : '成人班'}</span><span class="course-meta">${course.category}</span><h3>${course.name}</h3>${className}${classList}<p>${course.tracks?.length ? course.tracks.map((track) => track.short).join('、') : (course.level || course.desc)}</p><div class="course-footer"><span>${teachers}${schedule}<br>${fee}</span><strong>查看 →</strong></div></div></article>`;
+  const foot = [schedule, fee].filter(Boolean).join('<br>');
+  return `<article class="catalog-card" data-id="${course.id}">${visual}<div class="course-body">${full}<span class="audience-badge">${course.audience === 'kids' ? '兒童班' : '成人班'}</span><span class="course-meta">${course.category}</span><h3>${course.name}</h3>${className}${classList}<p>${course.tracks?.length ? course.tracks.map((track) => noStop(track.short)).join('、') : noStop(course.level || course.desc)}</p><div class="course-footer"><span>${foot}</span><strong>查看 →</strong></div></div></article>`;
 }
 
 function bindCourseCards() {
@@ -599,7 +644,7 @@ function renderCatalog(courses) {
   const render = () => {
     const list = homeAudience === 'kids' ? kidsCourses(courses) : courses.filter((course) => course.audience === 'adult');
     const groups = courseFamilies(list);
-    $('#catalogGrid').innerHTML = groups.length ? groups.map(courseCard).join('') : '<p class="empty-state">暫時沒有課程。</p>';
+    $('#catalogGrid').innerHTML = groups.length ? groups.map(courseCard).join('') : '<p class="empty-state">暫時沒有課程</p>';
     if ($('#resultCount')) $('#resultCount').textContent = `共 ${groups.length} 個課程`;
     bindCourseCards();
     $$('#courses [data-audience], .home-courses [data-audience]').forEach((item) => item.classList.toggle('active', item.dataset.audience === homeAudience));
@@ -686,25 +731,25 @@ function trackSwitchTracks(tracks) {
 function trackPanelHtml(track) {
   const time = (track.slots || []).map((slot) => `星期${weekdayNames[slot.weekday]} ${clock(slot.start)}–${clock(slot.end)}`).join('、');
   return `
-    <h2>${track.name}</h2>
+    <h2>${noStop(track.name)}</h2>
     ${time ? `<p class="course-tagline">${time}</p>` : ''}
-    <div class="course-list"><h3>上課模式</h3><p>${track.mode}</p></div>
-    <div class="course-list"><h3>學習內容</h3><p>${track.learn}</p></div>
-    <div class="course-list"><h3>教練重點</h3><p>${track.focus}</p></div>
+    <div class="course-list"><h3>上課模式</h3><p>${noStop(track.mode)}</p></div>
+    <div class="course-list"><h3>學習內容</h3><p>${noStop(track.learn)}</p></div>
+    <div class="course-list"><h3>教練重點</h3><p>${noStop(track.focus)}</p></div>
   `;
 }
 
 function bindTrackSwitch(course) {
   const buttons = $$('[data-track]');
-  const panel = $('#trackPanel');
-  if (!buttons.length || !panel) return;
+  if (!buttons.length) return;
   const show = (id) => {
     const track = course.tracks.find((item) => item.id === id) || course.tracks[0];
     buttons.forEach((button) => button.classList.toggle('active', button.dataset.track === track.id || (button.dataset.track === 'acrylic' && track.id === 'large-acrylic')));
     const teacher = $('#teacherWorksTop');
     const student = $('#studentWorksBottom');
     if (teacher) teacher.innerHTML = workStack(track.teacherWorks);
-    panel.innerHTML = trackPanelHtml(track);
+    const story = $('#courseStory');
+    if (story) story.innerHTML = weaveStory(storyChunks(course, track), courseWorks(course, 'other'));
     if (student) student.innerHTML = workStack(track.studentWorks, '學生作品');
     bindWorkSliders();
     const url = new URL(location.href);
@@ -718,7 +763,7 @@ function renderDetail(courses) {
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
   const course = courses.find((item) => item.id === id) || courses[0];
-  if (!course) { $('#courseDetail').innerHTML = '<p>暫時沒有課程資料。</p>'; return; }
+  if (!course) { $('#courseDetail').innerHTML = '<p>暫時沒有課程資料</p>'; return; }
   const family = courseFamily(courses, course);
   const signupCourse = course.isFull ? (family.find((item) => !item.isFull) || null) : course;
   document.title = `${course.name}｜賞心學堂 Ink House`;
@@ -728,7 +773,7 @@ function renderDetail(courses) {
     : '<span class="button dark" style="opacity:.55;pointer-events:none">已滿</span>';
   const meta = `
       <div class="detail-meta">
-        <div><span>課程對象</span><strong>${course.audience === 'kids' ? (course.age || '兒童') : '成人'}</strong></div>
+        ${course.audience === 'kids' ? `<div><span>課程對象</span><strong>${course.age || '兒童'}</strong></div>` : ''}
         ${course.audience === 'adult' && course.tuitionMop != null ? `<div><span>學費</span><strong>${money(course.tuitionMop)}${course.holdEdu ? '（可用持教）' : ''}</strong></div>` : ''}
         <div><span>${course.feeLabel}${course.audience === 'adult' ? '（需自費）' : ''}</span><strong>${feeAmount(course)}</strong></div>
       </div>
@@ -756,15 +801,13 @@ function renderDetail(courses) {
       <span class="audience-badge">${course.audience === 'kids' ? '兒童班' : '成人班'}</span>
       <p class="kicker">${course.category}${course.age ? ` · ${course.age}` : ''}</p>
       <h1>${course.name}</h1>
-      ${course.level ? `<p class="course-tagline">${course.level}</p>` : ''}
-      <p class="course-intro">${course.desc}</p>
+      ${course.level ? `<p class="course-tagline">${noStop(course.level)}</p>` : ''}
       <div class="audience-switch track-switch">
         ${trackSwitchTracks(course.tracks).map((track) => `<button type="button" data-track="${track.id}" class="${track.id === current.id || (track.id === 'acrylic' && current.id === 'large-acrylic') ? 'active' : ''}">${trackSwitchLabel(track)}</button>`).join('')}
       </div>
-      <div id="trackPanel">${trackPanelHtml(current)}</div>
+      ${courseStoryHtml(course, current)}
       ${meta}
     </div>
-    ${otherPhotosHtml(course)}
     <div id="studentWorksBottom">${workStack(current.studentWorks, '學生作品')}</div>
     ${calendar}`;
     bindTrackSwitch(course);
@@ -780,16 +823,10 @@ function renderDetail(courses) {
       <span class="audience-badge">${course.audience === 'kids' ? '兒童班' : '成人班'}</span>
       <p class="kicker">${course.category}${course.age ? ` · ${course.age}` : ''}</p>
       <h1>${course.name}</h1>
-      ${course.level ? `<p class="course-tagline">${course.level}</p>` : ''}
-      ${course.descTitle ? `<h3>${course.descTitle}</h3>` : ''}
-      <p class="course-intro">${course.desc}</p>
-      ${course.learn?.length ? `<div class="course-list"><h3>學習內容</h3><ol>${course.learn.map((item) => `<li>${item}</li>`).join('')}</ol></div>` : ''}
-      ${course.focus?.length ? `<div class="course-list"><h3>課程注重重點</h3><ol>${course.focus.map((item) => `<li>${item}</li>`).join('')}</ol></div>` : ''}
-      ${course.compare?.length ? `<div class="course-list course-compare"><h3>年齡階段學習重點比較</h3><ul>${course.compare.map((item) => `<li><strong>${item.age}</strong> ${item.text}</li>`).join('')}</ul></div>` : ''}
-      ${course.label ? `<p class="course-motto">${course.label}</p>` : ''}
+      ${course.level ? `<p class="course-tagline">${noStop(course.level)}</p>` : ''}
+      ${courseStoryHtml(course)}
       ${meta}
     </div>
-    ${otherPhotosHtml(course)}
     ${workStack(courseWorks(course, 'student'), '學生作品')}
     ${calendar}`;
   bindWorkSliders();
@@ -961,7 +998,6 @@ function setupRegistration(courses) {
     document.title = adult ? '立即報名｜賞心學堂' : '預約試堂｜賞心學堂';
     if ($('#signupKicker')) $('#signupKicker').textContent = adult ? 'ENROLL NOW' : 'TRIAL BOOKING';
     if ($('#signupTitle')) $('#signupTitle').textContent = adult ? '立即報名' : '預約試堂';
-    if ($('#signupHeading')) $('#signupHeading').textContent = adult ? '開始報名。' : '開始預約試堂。';
     if ($('#signupSubmit')) $('#signupSubmit').textContent = adult ? '立即報名 →' : '立即預約 →';
     $$('#signupAudience [data-signup-audience]').forEach((button) => button.classList.toggle('active', button.dataset.signupAudience === next));
     ['name', 'age', 'phone', 'wechat', 'courseId', 'selectedTime'].forEach((field) => {
@@ -969,7 +1005,6 @@ function setupRegistration(courses) {
       if (input) input.required = next === 'kids';
     });
     $$('#kidsFields [name="drawingExperience"]').forEach((input) => { input.required = next === 'kids'; });
-    $$('#adultFields [name="adultDrawingExperience"]').forEach((input) => { input.required = next === 'adult'; });
     ['adultName', 'adultPhone', 'adultWechat', 'adultCourseId', 'adultNotice'].forEach((field) => {
       const input = $(`#adultFields [name="${field}"]`);
       if (input) input.required = next === 'adult';
@@ -1008,20 +1043,20 @@ function setupRegistration(courses) {
 
   $('#registrationForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!mode) { $('#formStatus').textContent = '請選擇課程。'; return; }
+    if (!mode) { $('#formStatus').textContent = '請選擇課程'; return; }
     const course = selectedCourse();
-    if (!course) { $('#formStatus').textContent = '請選擇課程。'; return; }
-    if (course.isFull) { $('#formStatus').textContent = '此課程已滿。'; return; }
+    if (!course) { $('#formStatus').textContent = '請選擇課程'; return; }
+    if (course.isFull) { $('#formStatus').textContent = '此課程已滿'; return; }
     const form = event.target;
     const name = mode === 'kids' ? form.name.value.trim() : form.adultName.value.trim();
     const phone = mode === 'kids' ? form.phone.value.trim() : form.adultPhone.value.trim();
     const wechat = mode === 'kids' ? form.wechat.value.trim() : form.adultWechat.value.trim();
     const age = mode === 'kids' ? form.age.value.trim() : '';
     const extraTime = (mode === 'kids' ? form.preferredTime.value : form.adultPreferredTime.value).trim();
-    const drawing = mode === 'kids' ? (form.drawingExperience.value || '') : (form.adultDrawingExperience.value || '');
-    if (!wechat) { $('#formStatus').textContent = '請填寫正確的微信帳號。'; return; }
-    if (mode === 'kids' && !age) { $('#formStatus').textContent = '請填寫學生年齡。'; return; }
-    if (!drawing) { $('#formStatus').textContent = '請選擇有沒有接觸過畫畫。'; return; }
+    const drawing = mode === 'kids' ? (form.drawingExperience.value || '') : '';
+    if (!wechat) { $('#formStatus').textContent = '請填寫正確的微信帳號'; return; }
+    if (mode === 'kids' && !age) { $('#formStatus').textContent = '請填寫學生年齡'; return; }
+    if (mode === 'kids' && !drawing) { $('#formStatus').textContent = '請選擇有沒有接觸過畫畫'; return; }
     const selectedTime = mode === 'kids' ? form.selectedTime.value : courseScheduleText(course);
     const preferredParts = [];
     if (extraTime) preferredParts.push(`其他合適時間：${extraTime}`);
@@ -1049,12 +1084,12 @@ function setupRegistration(courses) {
         courseName: course.className ? `${course.name} ${course.className}` : course.name,
         feeLabel: course.feeLabel,
         amount: feeAmount(course),
-        extra: course.audience === 'adult' && course.tuitionMop != null ? `<p>學費 ${money(course.tuitionMop)}${course.holdEdu ? '（可用持教）' : ''} 請另行確認繳交方式。</p>` : ''
+        extra: course.audience === 'adult' && course.tuitionMop != null ? `<p>學費 ${money(course.tuitionMop)}${course.holdEdu ? '（可用持教）' : ''} 請另行確認繳交方式</p>` : ''
       });
       if ($('#successTitle')) $('#successTitle').textContent = mode === 'adult' ? '報名已收到！' : '預約成功！';
       if ($('#successLead')) $('#successLead').textContent = mode === 'adult'
-        ? '交了材料費才算報名成功。我們有專人聯繫你，或者你亦可加下方微信，並把付款截圖發給我們。'
-        : '我們有專人聯繫你，或者你亦可加下方微信，並把付款截圖發給我們。';
+        ? '交了材料費才算報名成功 我們有專人聯繫你，或者你亦可加下方微信，並把付款截圖發給我們'
+        : '我們有專人聯繫你，或者你亦可加下方微信，並把付款截圖發給我們';
       $('#registrationSuccess').hidden = false;
       $('#registrationSuccess').scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (error) {

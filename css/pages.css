@@ -4,7 +4,8 @@
 #courseDetail{max-width:860px;margin:0 auto}
 .work-block{margin:0 0 36px}
 .work-block h3{margin:0 0 12px;font-size:18px;letter-spacing:.08em}
-.work-vertical{max-width:min(260px,68%);margin:0 auto 28px}
+.course-story .course-intro{margin:0 0 16px}
+.course-story .work-vertical{margin:4px auto 26px}
 .work-vertical .work-slider{touch-action:pan-x}
 .work-vertical .work-slide{min-height:0;overflow:hidden}
 .work-vertical .work-slide img{width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;pointer-events:none}
@@ -43,9 +44,17 @@
 .pay-note{color:var(--coral);font-weight:700}
 .fee-line{font-size:16px;font-weight:700;margin:6px 0 16px}
 .field-hint{display:block;color:var(--coral);font-size:12px;margin-top:6px;font-weight:500}
+.registration-form label{font-size:16px;max-width:100%;min-width:0;overflow:hidden}
+.registration-form input,.registration-form select,.registration-form textarea{font-size:17px;max-width:100%;min-width:0;margin:0;box-sizing:border-box}
+.registration-form select{display:block;width:100%;appearance:none;-webkit-appearance:none;padding:9px 26px 9px 0;background-color:transparent;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.2 6 6.2 11 1.2' fill='none' stroke='%23542a22' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-origin:content-box;background-position:right center;background-size:12px 8px}
+.registration-form .field-hint{font-size:14px}
+.registration-form .notice-field ol{font-size:15px}
 .registration-form textarea{min-height:0;height:2.4em;resize:none;overflow:hidden}
 .notice-field{border:1px solid var(--line,#542a2230);padding:14px 16px;margin:18px 0}
 .notice-field ol{padding-left:22px;font-size:13px;font-weight:400;line-height:1.7}
+.registration-form .draw-question{border:0;padding:0;margin:0 0 18px}
+.registration-form .draw-question legend,.registration-form .draw-question .consent,.registration-form .draw-question .consent span{font-family:"Noto Sans TC",sans-serif;font-size:16px;font-weight:700;letter-spacing:0}
+.registration-form .draw-question legend{margin-bottom:8px;padding:0}
 .home-courses h2{margin:0 0 10px;font-size:clamp(32px,4vw,52px)}
 .home-courses .catalog-grid{margin-top:8px}
 footer{display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:48px 10vw 28px}
@@ -65,4 +74,4 @@ footer .brand{display:block;width:max-content;transform:none}
 .footer-nav a:hover{opacity:1}
 .footer-bottom small{font-size:11px;opacity:.55;letter-spacing:.08em}
 .copy-status{min-height:1.2em;margin:0;font-size:12px;opacity:.85}
-@media(max-width:850px){.catalog-grid{grid-template-columns:1fr}.detail-layout,.registration-layout{grid-template-columns:1fr}.detail-placeholder{height:380px}.course-detail-page{padding-top:88px;padding-bottom:56px}.page-hero{padding:120px 24px 60px}.page-content{padding:55px 24px 90px}.detail-info h1{font-size:34px;margin-top:8px}.detail-meta{margin:18px 0}.detail-actions{flex-direction:column;align-items:stretch;gap:12px;margin-top:22px}.detail-actions .button{min-width:0;width:100%;justify-content:center}.home-choice{grid-template-columns:1fr}.home-featured{padding:75px 24px}footer{padding:36px 24px 22px}.footer-icons{gap:10px 8px}.footer-bottom{flex-direction:column;align-items:flex-start}}
+@media(max-width:850px){.catalog-grid{grid-template-columns:1fr}.detail-layout,.registration-layout{grid-template-columns:1fr}.registration-layout,.registration-form{min-width:0;max-width:100%}.registration-form{padding:24px 18px}.detail-placeholder{height:380px}.course-detail-page{padding-top:88px;padding-bottom:56px}.page-hero{padding:120px 24px 60px}.page-content{padding:55px 24px 90px}.detail-info h1{font-size:34px;margin-top:8px}.detail-meta{margin:18px 0}.detail-actions{flex-direction:column;align-items:stretch;gap:12px;margin-top:22px}.detail-actions .button{min-width:0;width:100%;justify-content:center}.home-choice{grid-template-columns:1fr}.home-featured{padding:75px 24px}footer{padding:36px 24px 22px}.footer-icons{gap:10px 8px}.footer-bottom{flex-direction:column;align-items:flex-start}}
